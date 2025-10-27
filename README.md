@@ -45,7 +45,7 @@ le plus court pour Théobald.<br>
 Affichage de l'itinéraire sur la carte du marchand.
 
 - Explication des étapes de l'algorithme
-- 
+  
 - Pourquoi cet algorithme est pertinent dans ce contexte.<br>
 
 3. Résolution avec les Algorithmes Génétiques :
@@ -53,7 +53,7 @@ Affichage de l'itinéraire sur la carte du marchand.
 - Implémentation d'un algorithme génétique pour trouver l’itinéraire le
 plus court pour Théobald.<br>
 
-On considère ici que les individus
+- On considère ici que les individus
 étudiés sont les parcours différents (ou des Theobalds d’univers
 parallèles).
 
@@ -80,7 +80,7 @@ celle obtenue par l'algorithme de Christofides
    - facilité d’implémentation
    - robustesse de solution.
 
-○ Avantages des inconvénients de chaque
+- Avantages des inconvénients de chaque
 approche dans le contexte spécifique de Théobald.
 
 5. Conclusion
@@ -89,7 +89,6 @@ appropriée pour Théobald en fonction de l'analyse
 comparative.
 
 ---
-===
 ---
 
 ## Veille sur les **graphes**
