@@ -88,69 +88,109 @@ approche dans le contexte spécifique de Théobald.
 appropriée pour Théobald en fonction de l'analyse
 comparative.
 
-
+---
+===
+---
 
 ## Veille sur les **graphes**
 
-Représente des relations entre des éléments (sommets)
-Arête = relation entre 2 sommets
-Se compose de zéro ou une arête entre chaque sommets
+Un **graphe** représente des relations entre des éléments appelés **sommets**.  
+Une **arête** est une relation reliant deux sommets.  
+Un graphe peut comporter zéro, une ou plusieurs arêtes entre ses sommets.
 
-|Anglais|Français|
-|-|-|
-|node | sommet|
-|edge | arête|
-
----
-**voisins**
-2 sommets sont voisins s'il sont relié par une arête
-<img src=img/voisins.png width=400>
+| Anglais | Français |
+|----------|-----------|
+| node     | sommet    |
+| edge     | arête     |
 
 ---
-**degre**
-Nombre de voisin d'un sommet
-deg(sommet)=3 le sommet à 3 voisins
+
+### **Voisins**
+Deux sommets sont **voisins** s’ils sont reliés par une arête.  
+<img src="img/voisins.png" width="400">
 
 ---
-**chemin**
-nombre d'arêtes qui relient 2 sommet
-1 arête : chemin de longueur 1
-2 arêtes : chemin de longueur 2
-etc...
+
+### **Degré**
+Le **degré** d’un sommet est le nombre de ses voisins.  
+Exemple : si un sommet a 3 voisins, alors  
+`deg(sommet) = 3`
 
 ---
-**cycle**
-chemin dont les 2 extremités sont reliées
-(boucle)
 
-<img src=img/cycle.png width=400>
-<img src=img/cycle_3.png width=400>
-<img src=img/cycle_6.png width=400>
-
----
-**Graphe complet**
-contient toutes les arêtes possibles entre tous les sommets
-
-<img src=img/graphe_complet.png width=300>
+### **Chemin**
+Un **chemin** est une suite d’arêtes reliant deux sommets.  
+- 1 arête → chemin de longueur 1  
+- 2 arêtes → chemin de longueur 2  
+- etc.
 
 ---
-**Graphe connexe**
-Un graph est connexe si, pour tout sommets `u` et `v`, il contient un chemin entre `u` et `v`
 
-**L'ensemble ci-dessous n'est pas connexe**, il se compose de 2 graphs connnexes, celui à gauche (A, D,C ,F)et celui à doite (E, F)
-<img src=img/graphe_non_convexe.png width=300>
+### **Cycle**
+Un **cycle** est un chemin dont les deux extrémités sont reliées (on revient au point de départ).  
+
+<img src="img/cycle.png" width="400">
+<img src="img/cycle_3.png" width="400">
+<img src="img/cycle_6.png" width="400">
 
 ---
-**arbre**
-graphe **connexe** et **sans cycle**
 
-<img src=img/arbre.png width=200>
-<img src=img/arbre_etoile.png width=200>
-<img src=img/arbre_chemin.png width=200>
-<img src=img/non_arbre.png width=200>
+### **Graphe complet**
+Un **graphe complet** contient toutes les arêtes possibles entre tous les sommets.
 
-#### Relation entre connexité et arbre
-Un graphe est connexe si et seulement si il contient un arbre couvrant
+<img src="img/graphe_complet.png" width="300">
+
+---
+
+### **Graphe connexe**
+Un graphe est **connexe** si, pour tout couple de sommets `u` et `v`,  
+il existe un **chemin** reliant `u` à `v`.
+
+**Exemple :**  
+L’ensemble ci-dessous **n’est pas connexe** : il se compose de deux sous-graphes connexes,  
+celui de gauche `(A, C, D, F)` et celui de droite `(E, B)`.
+
+<img src="img/graphe_non_convexe.png" width="300">
+
+---
+
+### **Arbre**
+Un **arbre** est un graphe **connexe** et **sans cycle**.
+
+<img src="img/arbre.png" width="200">
+<img src="img/arbre_etoile.png" width="200">
+<img src="img/arbre_chemin.png" width="200">
+<img src="img/non_arbre.png" width="200">
+
+---
+
+### **Arbre couvrant**
+Un arbre couvrant (ou spanning tree en anglais) d’un graphe connexe, c’est :
+
+un sous-graphe qui contient tous les sommets du graphe,
+sans cycle, et suffisamment d’arêtes pour rester connexe.
+
+**Autrement dit :**
+
+- il “couvre” tous les sommets (rien n’est oublié)
+- il relie tout le monde (donc connexe)
+- mais sans cycle (aucune redondance inutile)
+
+---
+
+### **Relation entre connexité et arbre**
+Un graphe est **connexe si et seulement s’il admet au moins un arbre couvrant**,  
+c’est-à-dire un **sous-graphe connexe, sans cycle, contenant tous les sommets**.
+
+> À partir d’un graphe connexe, on peut supprimer des arêtes (avec soin) pour obtenir un arbre couvrant — mais pas n’importe lesquelles.
+
+---
+
+### **Somme des degrés**
+En général :  
+> Somme des degrés = 2 × (nombre d’arêtes du graphe)
+
+
 cad que si on supprime une ou des arêtes, on obtient un arbre
 
 #### Somme des degrés
