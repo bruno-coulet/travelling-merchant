@@ -207,4 +207,5 @@ arbre couvrant de poid minimal
 2. on ajoute une arrête (celle qui à un poid minimal) et le sommet qui va avec
 3. on ajoute l'arrête qui à un poid minimal
    (parmis toutes celles qui ont une extrémité dans l'arbre et une hors de l'arbre)
-4. bis repetita
+4. bis repetita<br>
+<img src="img/prim.png" width="600">
