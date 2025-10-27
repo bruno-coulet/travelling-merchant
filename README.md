@@ -201,7 +201,7 @@ Somme des degrés = 2 x le nombre d'arêtes du graphe
 
 ### ALgo de PRIM
 
-arbre couvrant de poid minimal
+Cherche à obtenir un arbre couvrant de poid minimal
 
 1. on part d'un sommet au hazard, et on le considère comme un (petit) arbre
 2. on ajoute une arrête (celle qui à un poid minimal) et le sommet qui va avec
