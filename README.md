@@ -195,3 +195,16 @@ cad que si on supprime une ou des arêtes, on obtient un arbre
 #### Somme des degrés
 En général :
 Somme des degrés = 2 x le nombre d'arêtes du graphe
+
+
+---
+
+### ALgo de PRIM
+
+arbre couvrant de poid minimal
+
+1. on part d'un sommet au hazard, et on le considère comme un (petit) arbre
+2. on ajoute une arrête (celle qui à un poid minimal) et le sommet qui va avec
+3. on ajoute l'arrête qui à un poid minimal
+   (parmis toutes celles qui ont une extrémité dans l'arbre et une hors de l'arbre)
+4. bis repetita
