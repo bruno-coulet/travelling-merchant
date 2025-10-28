@@ -128,9 +128,70 @@ Un **chemin** est une suite d’arêtes reliant deux sommets.
 ### **Cycle**
 Un **cycle** est un chemin dont les deux extrémités sont reliées (on revient au point de départ).  
 
-<img src="img/cycle.png" width="400">
-<img src="img/cycle_3.png" width="400">
-<img src="img/cycle_6.png" width="400">
+
+|Cycle de longueur 4|Cycle de longueur 3|Cycle de longueur 6|
+|-|-|-|
+|<img src="img/cycle_4.png" width="200">|<img src="img/cycle_3.png" width="200">|<img src="img/cycle_6.png" width="200">|
+
+---
+
+
+Cycle → sommets
+
+Circuit → arêtes
+
+| Terme       | Usage courant                                       | En graphes                                                  | Exemple        |
+| ----------- | --------------------------------------------------- | ----------------------------------------------------------- | --------------------- |
+| Cycle   | Suite fermée de sommets (retour au point de départ) | **sommets distincts** visités une fois   | Cycle hamiltonien |
+| Circuit | Suite fermée d’arêtes (retour au point de départ)   | **arêtes distinctes** utilisées une fois | Circuit eulérien  |
+
+
+
+### **Cycle Hamiltonien**
+- Passe une seule fois par chaque sommet
+- Reviens au sommet de départ
+
+Il n’existe pas toujours, et il n’y a pas de condition simple (comme pour Euler) pour savoir s’il existe.
+
+*Le cycle hamiltonien minimal resoud le problème du voyageur de commerce (TSP)*
+
+---
+
+### **Circuit eulérien**
+
+<img src="img/eulerian.webp" width="200">
+
+- Passe une fois par chaque arête
+- Reviens au sommet de départ
+
+Il existe dans un graphe si et seulement si :
+- le graphe est connexe,
+- et chaque sommet a un degré pair.
+
+*Idéal pour aider le facteur à distribuer le courrier en passant une seule fois par chaque rue (arête), peu importe s’il repasse par la même intersection (sommet).*
+
+---
+Minimum Spanning Tree (MST)
+
+<img src="img/mst.webp" width="200">
+
+Ensemble minimal d’arêtes qui connecte tous les sommets sans former de cycle.
+
+Objectif :
+
+Relier toutes les villes avec la plus petite longueur totale possible,
+sans boucle.
+
+- Contient tous les sommets.
+- Ne contient aucun cycle.
+- Si le graphe a n sommets → le MST a toujours n - 1 arêtes.
+- Le coût total est minimal parmi tous les sous-graphes connexes possibles.
+
+Trouvable efficacement avec les algorithmes de Kruskal ou Prim (complexité polynomiale).
+
+*Construire un réseau de fibre optique reliant toutes les villes avec le moins de câble possible.
+On veut connecter, pas faire une tournée*
+
 
 ---
 
