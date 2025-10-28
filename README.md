@@ -2,7 +2,35 @@
 Problème du Voyageur de Commerce (TSP), un défi mathématique et algorithmique consistant à trouver le chemin le plus court permettant de visiter un ensemble donné de villes une seule fois avant de revenir au point de départ. 
 
 
-## 🐍 Projet Python avec uv
+## 📋 Table des matières
+
+- [🐍 Intitulé du projet Python avec uv](#-intitule-du-projet-python-avec-uv)
+- [Projet travelling-merchant](#projet-travelling-merchant)
+  - [1. Modélisation du Problème](#1-modélisation-du-problème)
+  - [2. Résolution avec l'Algorithme de Christofides](#2-résolution-avec-lalgorithme-de-christofides)
+  - [3. Résolution avec les Algorithmes Génétiques](#3-résolution-avec-les-algorithmes-génétiques)
+  - [4. Analyse comparative](#4-analyse-comparative)
+  - [5. Conclusion](#5-conclusion)
+- [Veille sur les graphes](#veille-sur-les-graphes)
+  - [Voisins](#voisins)
+  - [Degré](#degré)
+  - [Chemin](#chemin)
+  - [Graphe complet](#graphe-complet)
+  - [Graphe connexe](#graphe-connexe)
+  - [Arbre](#arbre)
+  - [Arbre couvrant](#arbre-couvrant)
+  - [Relation entre connexité et arbre](#relation-entre-connexité-et-arbre)
+  - [Somme des degrés](#somme-des-degrés)
+  - [Cycle](#cycle)
+  - [Cycle Hamiltonien](#cycle-hamiltonien)
+  - [Circuit eulérien](#circuit-eulérien)
+  - [Minimum Spanning Tree (MST)](#minimum-spanning-tree-mst)
+  - [Algo de Prim](#algo-de-prim)
+  - [Algo de Christofides](#algo-de-cristofides)
+
+---
+
+## 🐍 Intitulé du projet Python avec uv
 
 Ce projet utilise [uv](https://github.com/astral-sh/uv), un gestionnaire de dépendances rapide pour Python.  
 Installation (si besoin) : `pip install uv` ou `pipx install uv`
@@ -22,10 +50,10 @@ Lancer le projet :<br>
 ```shell
 uv run main.py
 ```
+## Projet **travelling-merchant**
+**modélisation, résolution et analyse comparative**
 
-## modélisation, résolution et analyse comparative
-
-1. Modélisation du Problème :
+### 1. Modélisation du Problème :
    
 - Récupération des positions géographiques de 20 villes
 françaises
@@ -36,7 +64,7 @@ routes entre ces villes avec des distances associées.
 
 - Il faut utiliser la **distance de Haversine** <br>
 
-2. Résolution avec l'Algorithme de Christofides :
+### 2. Résolution avec l'Algorithme de Christofides :
    
 - Implémentation de l'**algorithme de Christofides** pour trouver l’itinéraire
 le plus court pour Théobald.<br>
@@ -48,7 +76,7 @@ Affichage de l'itinéraire sur la carte du marchand.
   
 - Pourquoi cet algorithme est pertinent dans ce contexte.<br>
 
-3. Résolution avec les Algorithmes Génétiques :
+### 3. Résolution avec les Algorithmes Génétiques :
 
 - Implémentation d'un algorithme génétique pour trouver l’itinéraire le
 plus court pour Théobald.<br>
@@ -71,7 +99,7 @@ observer comment elles affectent la qualité des solutions.
 - Quelle est la distance totale de notre solution presque optimale ?
 Affichage de l'itinéraire sur la carte du marchand.
 
-4. Analyse comparative
+### 4. Analyse comparative
    
 - Comparez la solution obtenue par l'algorithme génétique avec
 celle obtenue par l'algorithme de Christofides
@@ -83,7 +111,7 @@ celle obtenue par l'algorithme de Christofides
 - Avantages des inconvénients de chaque
 approche dans le contexte spécifique de Théobald.
 
-5. Conclusion
+### 5. Conclusion
 - Recommandation de la méthode la plus
 appropriée pour Théobald en fonction de l'analyse
 comparative.
@@ -124,6 +152,72 @@ Un **chemin** est une suite d’arêtes reliant deux sommets.
 - etc.
 
 ---
+
+### **Graphe complet**
+Un **graphe complet** contient toutes les arêtes possibles entre tous les sommets.
+
+<img src="img/graphe_complet.png" width="300">
+
+---
+
+### **Graphe connexe**
+Un graphe est **connexe** si, pour tout couple de sommets `u` et `v`,  
+il existe un **chemin** reliant `u` à `v`.
+
+**Exemple :**  
+L’ensemble ci-dessous **n’est pas connexe** : il se compose de deux sous-graphes connexes,  
+celui de gauche `(A, C, D, F)` et celui de droite `(E, B)`.
+
+<img src="img/graphe_non_convexe.png" width="300">
+
+---
+
+### **Arbre**
+Un **arbre** est un graphe **connexe** et **sans cycle**.
+
+<img src="img/arbre.png" width="200">
+<img src="img/arbre_etoile.png" width="200">
+<img src="img/arbre_chemin.png" width="200">
+<img src="img/non_arbre.png" width="200">
+
+---
+
+### **Arbre couvrant**
+Un arbre couvrant (ou spanning tree en anglais) d’un graphe connexe, c’est :
+
+un sous-graphe qui contient tous les sommets du graphe,
+sans cycle, et suffisamment d’arêtes pour rester connexe.
+
+**Autrement dit :**
+
+- il “couvre” tous les sommets (rien n’est oublié)
+- il relie tout le monde (donc connexe)
+- mais sans cycle (aucune redondance inutile)
+
+---
+
+### **Relation entre connexité et arbre**
+Un graphe est **connexe si et seulement s’il admet au moins un arbre couvrant**,  
+c’est-à-dire un **sous-graphe connexe, sans cycle, contenant tous les sommets**.
+
+> À partir d’un graphe connexe, on peut supprimer des arêtes (avec soin) pour obtenir un arbre couvrant — mais pas n’importe lesquelles.
+
+---
+
+### **Somme des degrés**
+En général :  
+> Somme des degrés = 2 × (nombre d’arêtes du graphe)
+
+
+cad que si on supprime une ou des arêtes, on obtient un arbre
+
+#### Somme des degrés
+En général :
+Somme des degrés = 2 x le nombre d'arêtes du graphe
+
+
+---
+
 
 ### **Cycle**
 Un **cycle** est un chemin dont les deux extrémités sont reliées (on revient au point de départ).  
@@ -195,72 +289,7 @@ On veut connecter, pas faire une tournée*
 
 ---
 
-### **Graphe complet**
-Un **graphe complet** contient toutes les arêtes possibles entre tous les sommets.
-
-<img src="img/graphe_complet.png" width="300">
-
----
-
-### **Graphe connexe**
-Un graphe est **connexe** si, pour tout couple de sommets `u` et `v`,  
-il existe un **chemin** reliant `u` à `v`.
-
-**Exemple :**  
-L’ensemble ci-dessous **n’est pas connexe** : il se compose de deux sous-graphes connexes,  
-celui de gauche `(A, C, D, F)` et celui de droite `(E, B)`.
-
-<img src="img/graphe_non_convexe.png" width="300">
-
----
-
-### **Arbre**
-Un **arbre** est un graphe **connexe** et **sans cycle**.
-
-<img src="img/arbre.png" width="200">
-<img src="img/arbre_etoile.png" width="200">
-<img src="img/arbre_chemin.png" width="200">
-<img src="img/non_arbre.png" width="200">
-
----
-
-### **Arbre couvrant**
-Un arbre couvrant (ou spanning tree en anglais) d’un graphe connexe, c’est :
-
-un sous-graphe qui contient tous les sommets du graphe,
-sans cycle, et suffisamment d’arêtes pour rester connexe.
-
-**Autrement dit :**
-
-- il “couvre” tous les sommets (rien n’est oublié)
-- il relie tout le monde (donc connexe)
-- mais sans cycle (aucune redondance inutile)
-
----
-
-### **Relation entre connexité et arbre**
-Un graphe est **connexe si et seulement s’il admet au moins un arbre couvrant**,  
-c’est-à-dire un **sous-graphe connexe, sans cycle, contenant tous les sommets**.
-
-> À partir d’un graphe connexe, on peut supprimer des arêtes (avec soin) pour obtenir un arbre couvrant — mais pas n’importe lesquelles.
-
----
-
-### **Somme des degrés**
-En général :  
-> Somme des degrés = 2 × (nombre d’arêtes du graphe)
-
-
-cad que si on supprime une ou des arêtes, on obtient un arbre
-
-#### Somme des degrés
-En général :
-Somme des degrés = 2 x le nombre d'arêtes du graphe
-
-
----
-
-### ALgo de PRIM
+### Algo de Prim
 
 Cherche à obtenir un arbre couvrant de poid minimal
 
@@ -270,3 +299,24 @@ Cherche à obtenir un arbre couvrant de poid minimal
    (parmis toutes celles qui ont une extrémité dans l'arbre et une hors de l'arbre)
 4. bis repetita<br>
 <img src="img/prim.png" width="600">
+
+
+### Algo de cristofides
+
+Christofides sert à approcher le TSP (problème du voyageur de commerce, cycle hamiltonien minimal) dans un graphe métrique.
+
+**Etapes** :
+
+🔹 Construire un MST (minimum spanning tree) sur le graphe.
+
+🔹 Identifier les sommets de degré impair dans ce MST.
+
+🔹 Trouver un Minimum Weight Perfect Matching entre ces sommets impairs.
+
+🔹 Ajouter ces arêtes au MST → on obtient un graphe eulérien.
+
+🔹 Trouver un circuit eulérien, puis le convertir en cycle hamiltonien (en sautant les doublons de sommets)
+
+**Résultat** :
+
+un cycle hamiltonien dont le coût ≤ 1,5 × le coût optimal
