@@ -1,8 +1,5 @@
 import pandas as pd
-import networkx as nx
-import matplotlib.pyplot as plt
-import math
-from utils import haversine, plot_graph, cristo
+from utils import haversine, plot_graph, cristo, plot_graph_map, crist, crist_plot
 
 # ============ fichier principal  ===============
 # 
@@ -18,4 +15,9 @@ data = pd.read_csv("data/villes.csv")
 
 # plot_graph(data)
 
-cristo(data)
+# cristo(data)
+
+# plot_graph_map(data)
+
+crist(data)
+crist_plot(g_data)
