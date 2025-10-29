@@ -194,6 +194,22 @@ sans cycle, et suffisamment d’arêtes pour rester connexe.
 - il relie tout le monde (donc connexe)
 - mais sans cycle (aucune redondance inutile)
 
+**MST - minimum spanning tree - arbre couvrant minimal**
+
+<img src="img/mst.webp" width="400">
+
+
+- Contient tous les sommets.
+- Ne contient aucun cycle.
+- Si le graphe a n sommets → le MST a toujours n - 1 arêtes.
+- Le coût total est minimal parmi tous les sous-graphes connexes possibles.
+
+Trouvable efficacement avec les algorithmes de Kruskal ou Prim (complexité polynomiale).
+
+*Construire un réseau de fibre optique reliant toutes les villes avec le moins de câble possible.
+On veut connecter, pas faire une tournée*
+
+
 ---
 
 ### **Relation entre connexité et arbre**
@@ -265,29 +281,6 @@ Il existe dans un graphe si et seulement si :
 *Idéal pour aider le facteur à distribuer le courrier en passant une seule fois par chaque rue (arête), peu importe s’il repasse par la même intersection (sommet).*
 
 ---
-Minimum Spanning Tree (MST)
-
-<img src="img/mst.webp" width="200">
-
-Ensemble minimal d’arêtes qui connecte tous les sommets sans former de cycle.
-
-Objectif :
-
-Relier toutes les villes avec la plus petite longueur totale possible,
-sans boucle.
-
-- Contient tous les sommets.
-- Ne contient aucun cycle.
-- Si le graphe a n sommets → le MST a toujours n - 1 arêtes.
-- Le coût total est minimal parmi tous les sous-graphes connexes possibles.
-
-Trouvable efficacement avec les algorithmes de Kruskal ou Prim (complexité polynomiale).
-
-*Construire un réseau de fibre optique reliant toutes les villes avec le moins de câble possible.
-On veut connecter, pas faire une tournée*
-
-
----
 
 ### Algo de Prim
 
@@ -297,15 +290,16 @@ Cherche à obtenir un arbre couvrant de poid minimal
 2. on ajoute une arrête (celle qui à un poid minimal) et le sommet qui va avec
 3. on ajoute l'arrête qui à un poid minimal
    (parmis toutes celles qui ont une extrémité dans l'arbre et une hors de l'arbre)
-4. bis repetita<br>
 <img src="img/prim.png" width="600">
+4. **bis repetita**<br>
 
+---
 
 ### Algo de cristofides
 
 Christofides sert à approcher le TSP (problème du voyageur de commerce, cycle hamiltonien minimal) dans un graphe métrique.
 
-**Etapes** :
+**Etapes, à partir d'un graph complet** :
 
 🔹 Construire un MST (minimum spanning tree) sur le graphe.
 
@@ -319,4 +313,5 @@ Christofides sert à approcher le TSP (problème du voyageur de commerce, cycle 
 
 **Résultat** :
 
-un cycle hamiltonien dont le coût ≤ 1,5 × le coût optimal
+- un cycle hamiltonien
+- coût ≤ 1,5 × le coût optimal

@@ -1,6 +1,7 @@
 import networkx as nx
 import itertools
 import matplotlib.pyplot as plt
+import pandas as pd
 
 def christofides_tsp(graph):
     # Step 1: Compute the Minimum Spanning Tree (MST)
@@ -31,22 +32,29 @@ def christofides_tsp(graph):
 
     return tsp_tour
 
-# Example Graph with Four Cities
-graph = nx.Graph()
-cities = ['A', 'B', 'C', 'D']
-distances = {
-    ('A', 'B'): 1, ('A', 'C'): 2, ('A', 'D'): 3,
-    ('B', 'C'): 4, ('B', 'D'): 5, ('C', 'D'): 6
-}
+data = pd.read_csv("data/villes.csv")
+
+G = nx.Graph()
+
+# Ajout des nœuds avec attributs (latitude, longitude)
+for _, row in data.iterrows():
+    G.add_node(row["Ville"], pos=(row["Longitude"], row["Latitude"]))
+
+
+# cities = ['A', 'B', 'C', 'D']
+# distances = {
+#     ('A', 'B'): 1, ('A', 'C'): 2, ('A', 'D'): 3,
+#     ('B', 'C'): 4, ('B', 'D'): 5, ('C', 'D'): 6
+# }
 
 for (u, v), w in distances.items():
-    graph.add_edge(u, v, weight=w)
+    G.add_edge(u, v, weight=w)
 
-tsp_tour = christofides_tsp(graph)
+tsp_tour = christofides_tsp(G)
 print("TSP Tour:", " -> ".join(tsp_tour), "\n")
 # Visualizing the Graph
-pos = nx.spring_layout(graph)
-nx.draw(graph, pos, with_labels=True, node_color='lightblue', edge_color='gray', node_size=2000, font_size=16)
-labels = nx.get_edge_attributes(graph, 'weight')
-nx.draw_networkx_edge_labels(graph, pos, edge_labels=labels)
+pos = nx.spring_layout(G)
+nx.draw(G, pos, with_labels=True, node_color='lightblue', edge_color='gray', node_size=2000, font_size=16)
+labels = nx.get_edge_attributes(G, 'weight')
+nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
 plt.show()
