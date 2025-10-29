@@ -105,98 +105,8 @@ def plot_graph_map(data):
     plt.title("Réseau des villes (avec fond de carte)")
     plt.show()
 
-def cristo(data):
-    # --- Graphe complet pondéré ---
-    G = nx.Graph()
-    for i, v1 in data.iterrows():
-        for j, v2 in data.iterrows():
-            if i < j:
-                dist = haversine(v1["Latitude"], v1["Longitude"], v2["Latitude"], v2["Longitude"])
-                G.add_edge(v1["Ville"], v2["Ville"], weight=dist)
-
-    # ---  Minimum Spanning Tree ---
-    mst = nx.minimum_spanning_tree(G, weight="weight")
-
-    # --- Sommets de degré impair ---
-    odd_nodes = [node for node in mst.nodes() if mst.degree(node) % 2 == 1]
-
-    # --- Sous-graphe des sommets impairs ---
-    odd_subgraph = G.subgraph(odd_nodes)
-
-    # --- Minimum Weight Perfect Matching du ous-graphe ---
-    matching = nx.algorithms.matching.min_weight_matching(odd_subgraph, weight="weight")
-
-    # --- Print le résultat ---
-    print("Sommets impairs :", odd_nodes)
-    print("\nAppariements du MWPM :")
-    for u, v in matching:
-        print(f"{u} — {v} : {G[u][v]['weight']:.2f} km")
-
-    # --- Visualisation MST + MWPM ---
-    import matplotlib.pyplot as plt
-
-    pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
-
-    plt.figure(figsize=(10, 8))
-
-    # --- Sommets ---
-    # Tous les sommets : gris clair
-    nx.draw_networkx_nodes(
-        G, pos,
-        node_color='lightgray',
-        node_size=250,
-        label='Sommets pairs'
-    )
-
-    # Sommets impairs : bleu et plus gros
-    nx.draw_networkx_nodes(
-        G, pos,
-        nodelist=odd_nodes,
-        node_color='dodgerblue',
-        node_size=400,
-        label='Sommets impairs'
-    )
-
-    # --- Arêtes ---
-    # MST : vert continu
-    nx.draw_networkx_edges(
-        mst, pos,
-        edge_color='green',
-        width=1.5,
-        label='MST'
-    )
-
-    # MWPM : rouge pointillé
-    nx.draw_networkx_edges(
-        G, pos,
-        edgelist=list(matching),
-        edge_color='red',
-        style='dashed',
-        width=2,
-        label='MWPM'
-    )
-
-    # --- Labels ---
-    # N’afficher les labels que pour les sommets impairs
-    odd_labels = {node: node for node in odd_nodes}
-    nx.draw_networkx_labels(G, pos, labels=odd_labels, font_size=9, font_color='black', font_weight='bold')
-
-    # --- Légende & mise en forme ---
-    plt.legend(
-        loc='upper left',
-        fontsize=9,
-        frameon=True,
-        fancybox=True,
-        shadow=True
-    )
-    plt.title("MST + MWPM (Étapes de Christofides)\nSommets impairs en bleu", fontsize=12, fontweight='bold')
-    plt.xlabel("Longitude")
-    plt.ylabel("Latitude")
-    plt.tight_layout()
-    plt.show()
-
-
-def crist(data):
+# Version modulaire cristo algorithme
+def cristo_algo(data):
     # --- Graphe complet pondéré ---
     G = nx.Graph()
     for i, v1 in data.iterrows():
@@ -237,175 +147,82 @@ def crist(data):
         "pos": pos
     }
     return g_data
-    
-def crist_plot(g_data):
 
-    # G, mst, matching, odd_nodes, pos = g_data
+
+# --- Affichage avec fond de carte ---
+def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_color='whitesmoke', label=''):
+
     G = g_data["G"]
     mst = g_data["mst"]
     matching = g_data["matching"]
     odd_nodes = g_data["odd_nodes"]
     pos = g_data["pos"]
-    
 
-    # --- Print le résultat ---
-    print("Sommets impairs :", odd_nodes)
-    print("\nAppariements du MWPM :")
-    for u, v in matching:
-        print(f"{u} — {v} : {G[u][v]['weight']:.2f} km")
+    plt.figure(figsize=(12, 10))
 
-    # --- Visualisation MST + MWPM ---
-    import matplotlib.pyplot as plt
+    # --- Création de la carte de fond ---
+    m = Basemap(
+        projection='merc',
+        llcrnrlon=min(row[0] for row in pos.values()) - 1,
+        llcrnrlat=min(row[1] for row in pos.values()) - 1,
+        urcrnrlon=max(row[0] for row in pos.values()) + 1,
+        urcrnrlat=max(row[1] for row in pos.values()) + 1,
+        resolution='i'
+    )
+    m.drawcoastlines()
+    m.drawcountries()
+    m.fillcontinents(color=bg_color, lake_color='aqua')
+    m.drawmapboundary(fill_color='aqua')
 
-    # pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
-
-    plt.figure(figsize=(10, 8))
+    # --- Convertir positions lat/lon en coordonnées projetées ---
+    x, y = m([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
+    projected_pos = {n: (x_i, y_i) for n, x_i, y_i in zip(G.nodes(), x, y)}
 
     # --- Sommets ---
-    # Tous les sommets : gris clair
     nx.draw_networkx_nodes(
-        G, pos,
-        node_color='lightgray',
+        G, projected_pos,
+        node_color='orange',
         node_size=250,
         label='Sommets pairs'
     )
-
-    # Sommets impairs : bleu et plus gros
     nx.draw_networkx_nodes(
-        G, pos,
+        G, projected_pos,
         nodelist=odd_nodes,
-        node_color='dodgerblue',
-        node_size=400,
+        node_color='red',
+        node_size=300,
         label='Sommets impairs'
     )
 
     # --- Arêtes ---
-    # MST : vert continu
-    nx.draw_networkx_edges(
-        mst, pos,
-        edge_color='green',
-        width=1.5,
-        label='MST'
-    )
+    if show_full:
+        nx.draw_networkx_edges(G, projected_pos, edge_color='gray', width=2, alpha=0.5, label='Graphe complet')
+    if show_mst:
+        nx.draw_networkx_edges(mst, projected_pos, edge_color='green', width=3, label='MST')
+    if show_matching:
+        nx.draw_networkx_edges(G, projected_pos, edgelist=list(matching),
+                               edge_color='red', style='dashed', width=2, label='MWPM')
 
-    # MWPM : rouge pointillé
-    nx.draw_networkx_edges(
-        G, pos,
-        edgelist=list(matching),
-        edge_color='red',
-        style='dashed',
-        width=2,
-        label='MWPM'
-    )
-
-    # --- Labels ---
-    # N’afficher les labels que pour les sommets impairs
+    # --- Labels pour les sommets impairs ---
     odd_labels = {node: node for node in odd_nodes}
-    nx.draw_networkx_labels(G, pos, labels=odd_labels, font_size=9, font_color='black', font_weight='bold')
+    nx.draw_networkx_labels(G, projected_pos, labels=odd_labels, font_size=9, font_color='black', font_weight='bold')
 
-    # --- Légende & mise en forme ---
-    plt.legend(
-        loc='upper left',
-        fontsize=9,
-        frameon=True,
-        fancybox=True,
-        shadow=True
-    )
-    plt.title("MST + MWPM (Étapes de Christofides)\nSommets impairs en bleu", fontsize=12, fontweight='bold')
-    plt.xlabel("Longitude")
-    plt.ylabel("Latitude")
+    plt.legend(loc='upper left', fontsize=9, frameon=True, fancybox=True, shadow=True)
+    plt.title(f"Algorithme de Christofides - étape {label}", fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.show()
 
 
+# --- Fonction séquentielle pour visualiser étape par étape ---
+def crist_steps(g_data):
 
+    steps = [
+        ("Graphe complet", True, False, False),
+        ("MST - arbre couvrant minimal", False, True, False),
+        ("MWPM - minimum weight perfect matching", False, False, True),
+        (" fusion de MST et MWPM", False, True, True)
+    ]
 
-def cristo_map(data):
-    # --- Graphe complet pondéré ---
-    G = nx.Graph()
-    for i, v1 in data.iterrows():
-        for j, v2 in data.iterrows():
-            if i < j:
-                dist = haversine(v1["Latitude"], v1["Longitude"], v2["Latitude"], v2["Longitude"])
-                G.add_edge(v1["Ville"], v2["Ville"], weight=dist)
-
-    # ---  Minimum Spanning Tree ---
-    mst = nx.minimum_spanning_tree(G, weight="weight")
-
-    # --- Sommets de degré impair ---
-    odd_nodes = [node for node in mst.nodes() if mst.degree(node) % 2 == 1]
-
-    # --- Sous-graphe des sommets impairs ---
-    odd_subgraph = G.subgraph(odd_nodes)
-
-    # --- Minimum Weight Perfect Matching du ous-graphe ---
-    matching = nx.algorithms.matching.min_weight_matching(odd_subgraph, weight="weight")
-
-    # --- Print le résultat ---
-    print("Sommets impairs :", odd_nodes)
-    print("\nAppariements du MWPM :")
-    for u, v in matching:
-        print(f"{u} — {v} : {G[u][v]['weight']:.2f} km")
-
-    # --- Visualisation MST + MWPM ---
-    import matplotlib.pyplot as plt
-
-    pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
-
-    plt.figure(figsize=(10, 8))
-
-    # --- Sommets ---
-    # Tous les sommets : gris clair
-    nx.draw_networkx_nodes(
-        G, pos,
-        node_color='lightgray',
-        node_size=250,
-        label='Sommets pairs'
-    )
-
-    # Sommets impairs : bleu et plus gros
-    nx.draw_networkx_nodes(
-        G, pos,
-        nodelist=odd_nodes,
-        node_color='dodgerblue',
-        node_size=400,
-        label='Sommets impairs'
-    )
-
-    # --- Arêtes ---
-    # MST : vert continu
-    nx.draw_networkx_edges(
-        mst, pos,
-        edge_color='green',
-        width=1.5,
-        label='MST'
-    )
-
-    # MWPM : rouge pointillé
-    nx.draw_networkx_edges(
-        G, pos,
-        edgelist=list(matching),
-        edge_color='red',
-        style='dashed',
-        width=2,
-        label='MWPM'
-    )
-
-    # --- Labels ---
-    # N’afficher les labels que pour les sommets impairs
-    odd_labels = {node: node for node in odd_nodes}
-    nx.draw_networkx_labels(G, pos, labels=odd_labels, font_size=9, font_color='black', font_weight='bold')
-
-    # --- Légende & mise en forme ---
-    plt.legend(
-        loc='upper left',
-        fontsize=9,
-        frameon=True,
-        fancybox=True,
-        shadow=True
-    )
-    plt.title("MST + MWPM (Étapes de Christofides)\nSommets impairs en bleu", fontsize=12, fontweight='bold')
-    plt.xlabel("Longitude")
-    plt.ylabel("Latitude")
-    plt.tight_layout()
-    plt.show()
+    for title, show_full, show_mst, show_matching in steps:
+        print(f"--- {title} ---")
+        cristo_plot(g_data, show_full=show_full, show_mst=show_mst, show_matching=show_matching, label=title)
+        input("Appuyez sur Entrée pour passer à l'étape suivante...")

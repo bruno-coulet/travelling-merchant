@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import haversine, plot_graph, cristo, plot_graph_map, crist, crist_plot
+from utils import haversine, plot_graph_map, plot_graph, cristo_algo, cristo_plot, crist_steps
 
 # ============ fichier principal  ===============
 # 
@@ -15,9 +15,13 @@ data = pd.read_csv("data/villes.csv")
 
 # plot_graph(data)
 
-# cristo(data)
+# cristo_et_affichage(data)
 
 # plot_graph_map(data)
 
-crist(data)
-crist_plot(g_data)
+g_data = cristo_algo(data)
+
+cristo_plot(g_data)
+
+# Affichage étape par étape
+crist_steps(g_data)
