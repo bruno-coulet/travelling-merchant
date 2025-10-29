@@ -3,7 +3,13 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import math
 
-
+# =======  Liste de fonctions utilisées dans le main.py =======
+# 
+# haversine() permet de calculer la distance entre 2 point géographiques
+# plot_graph() permet d'affciher ke graph des villes
+# cristo() implémente les étapes de l'algotithme de Christofides
+# 
+# =============================================================
 
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371  # rayon moyen de la Terre en km
