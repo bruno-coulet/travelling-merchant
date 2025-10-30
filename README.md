@@ -4,6 +4,8 @@ Problème du Voyageur de Commerce (TSP), un défi mathématique et algorithmique
 
 ## 📋 Table des matières
 
+- [🚀 Démarrage rapide](#-démarrage-rapide)
+- [📊 Fichiers du projet](#-fichiers-du-projet)
 - [🐍 Intitulé du projet Python avec uv](#-intitule-du-projet-python-avec-uv)
 - [Projet travelling-merchant](#projet-travelling-merchant)
   - [1. Modélisation du Problème](#1-modélisation-du-problème)
@@ -27,6 +29,69 @@ Problème du Voyageur de Commerce (TSP), un défi mathématique et algorithmique
   - [Minimum Spanning Tree (MST)](#minimum-spanning-tree-mst)
   - [Algo de Prim](#algo-de-prim)
   - [Algo de Christofides](#algo-de-cristofides)
+
+---
+
+## 🚀 Démarrage rapide
+
+### Installation
+```bash
+# Installer uv si nécessaire
+pip install uv
+
+# Synchroniser les dépendances
+uv sync
+
+# Activer l'environnement virtuel (optionnel)
+source .venv/bin/activate  # macOS/Linux
+.venv\Scripts\Activate.ps1  # Windows
+```
+
+### Utilisation
+
+**1. Comparaison complète avec benchmark** (recommandé)
+```bash
+uv run main.py
+```
+- Compare Christofides et l'algorithme génétique avec 4 configurations différentes
+- Mesure : distance, temps d'exécution, CPU, mémoire
+- Sauvegarde les résultats dans `results/benchmark_results.csv`
+
+**2. Visualisation comparative**
+```bash
+uv run visualize.py
+```
+- Affiche les deux tours côte à côte sur une carte
+- Compare visuellement les résultats
+- Affiche la différence de distance
+
+**3. Visualisation étape par étape de Christofides**
+```python
+# Dans un script Python ou notebook
+import pandas as pd
+from utils import cristo_algo, crist_steps
+
+data = pd.read_csv("data/villes.csv")
+g_data = cristo_algo(data)
+crist_steps(g_data)  # Affiche les 4 étapes interactivement
+```
+
+---
+
+## 📊 Fichiers du projet
+
+```
+travelling-merchant/
+├── data/
+│   └── villes.csv          # 20 villes françaises (lat, lon)
+├── results/
+│   └── benchmark_results.csv  # Résultats des tests (généré)
+├── utils.py                # Fonctions Christofides et helpers
+├── genetique.py            # Algorithme génétique
+├── benchmark.py            # Système de mesure de performance
+├── visualize.py            # Visualisation comparative
+└── main.py                 # Point d'entrée principal
+```
 
 ---
 
@@ -100,21 +165,94 @@ observer comment elles affectent la qualité des solutions.
 Affichage de l'itinéraire sur la carte du marchand.
 
 ### 4. Analyse comparative
-   
-- Comparez la solution obtenue par l'algorithme génétique avec
-celle obtenue par l'algorithme de Christofides
-   - terme de distance totale
-   - temps d’exécution
-   - facilité d’implémentation
-   - robustesse de solution.
 
-- Avantages des inconvénients de chaque
-approche dans le contexte spécifique de Théobald.
+Le projet inclut un système complet de benchmark qui mesure :
+
+#### Métriques mesurées
+- **Distance totale** : Qualité de la solution (en km)
+- **Temps d'exécution** : Performance algorithmique (en secondes)
+- **Utilisation CPU** : Charge processeur moyenne (%)
+- **Consommation mémoire** : RAM utilisée pendant l'exécution (MB)
+
+#### Paramètres de l'algorithme génétique testés
+| Configuration | Population | Générations | Mutation | Élites |
+|--------------|-----------|------------|----------|--------|
+| Config 1     | 50        | 100        | 10%      | 5      |
+| Config 2     | 100       | 200        | 10%      | 10     |
+| Config 3     | 150       | 300        | 15%      | 10     |
+| Config 4     | 200       | 500        | 10%      | 15     |
+
+#### Résultats sauvegardés
+Tous les résultats sont automatiquement sauvegardés dans `results/benchmark_results.csv` avec :
+- Timestamp de l'exécution
+- Tous les paramètres utilisés
+- Toutes les métriques de performance
+- Tour complet (ordre de visite des villes)
+
+#### Comparaison des approches
+
+| Critère | Christofides | Algorithme Génétique |
+|---------|-------------|---------------------|
+| **Distance** | Solution optimale garantie ≤ 1.5× optimal | Variable selon paramètres |
+| **Temps** | Rapide (polynomial) | Plus lent mais paramétrable |
+| **Complexité** | MST + MWPM + Circuit eulérien | Population + Sélection + Croisement |
+| **Déterminisme** | Toujours la même solution | Solutions différentes (aléatoire) |
+| **Paramétrage** | Aucun | Nombreux paramètres à ajuster |
+| **Scalabilité** | Bonne jusqu'à ~100 villes | Flexible, adaptable |
+
+#### Avantages et inconvénients
+
+**Christofides ✅**
+- Garantie théorique (≤ 1.5× optimal)
+- Rapide et prévisible
+- Pas de paramètres à ajuster
+- Idéal pour solutions de référence
+
+**Christofides ❌**
+- Pas toujours la meilleure solution
+- Difficile à paralléliser
+- Limité aux graphes métriques
+
+**Génétique ✅**
+- Peut trouver de meilleures solutions
+- Très flexible et paramétrable
+- Facilement parallélisable
+- Continue d'améliorer avec plus de temps
+
+**Génétique ❌**
+- Pas de garantie de qualité
+- Nombreux paramètres à ajuster
+- Résultats variables
+- Plus lent pour convergence
 
 ### 5. Conclusion
-- Recommandation de la méthode la plus
-appropriée pour Théobald en fonction de l'analyse
-comparative.
+
+#### Recommandations pour Théobald
+
+**Pour une solution rapide et fiable :**
+- ✅ **Christofides** est le meilleur choix
+- Solution en quelques secondes
+- Garantie de qualité (≤ 1.5× optimal)
+- Aucun réglage nécessaire
+
+**Pour optimiser au maximum la distance :**
+- ✅ **Algorithme Génétique** avec beaucoup de générations
+- Peut battre Christofides avec bons paramètres
+- Nécessite du temps d'expérimentation
+- Idéal si on peut laisser tourner longtemps
+
+**Approche hybride recommandée :**
+1. Utiliser **Christofides** pour avoir une solution de référence rapide
+2. Lancer **Génétique** en parallèle avec plusieurs configurations
+3. Comparer et choisir le meilleur tour
+
+#### Leçons apprises
+
+- Les algorithmes exacts (comme Christofides) donnent de bonnes solutions rapidement
+- Les métaheuristiques (comme Génétique) peuvent trouver mieux mais demandent plus de temps
+- Le benchmark automatique permet de tester objectivement
+- Pour 20 villes, les deux approches donnent des résultats très comparables
+- Au-delà de 50-100 villes, l'algorithme génétique devient plus intéressant
 
 ---
 ---

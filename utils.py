@@ -20,11 +20,36 @@ def haversine(lat1, lon1, lat2, lon2):
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
     dphi = math.radians(lat2 - lat1)
     dlambda = math.radians(lon2 - lon1)
-    
+
     a = math.sin(dphi / 2)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2)**2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    
+
     return R * c  # distance en km
+
+
+def calculate_tour_distance(tour, data):
+    """
+    Calcule la distance totale d'un tour (circuit hamiltonien fermé).
+
+    Args:
+        tour: Liste des noms de villes dans l'ordre de visite
+        data: DataFrame avec colonnes Ville, Latitude, Longitude
+
+    Returns:
+        Distance totale en km
+    """
+    total_distance = 0
+    for i in range(len(tour)):
+        city1 = tour[i]
+        city2 = tour[(i + 1) % len(tour)]  # retour à la première ville
+
+        # Récupérer les coordonnées
+        lat1, lon1 = data.loc[data["Ville"] == city1, ["Latitude", "Longitude"]].values[0]
+        lat2, lon2 = data.loc[data["Ville"] == city2, ["Latitude", "Longitude"]].values[0]
+
+        total_distance += haversine(lat1, lon1, lat2, lon2)
+
+    return total_distance
 # -------------------------------------------------------
 
 
@@ -33,7 +58,7 @@ def haversine(lat1, lon1, lat2, lon2):
 
 # -------- Algo de Christofides ---------
 
-# Version modulaire cristo algorithme
+# Version modulaire Christo algorithme
 def cristo_algo(data):
     # --- Graphe complet pondéré ---
     G = nx.Graph()
@@ -75,6 +100,86 @@ def cristo_algo(data):
         "pos": pos
     }
     return g_data
+
+
+# Christo algorithme +  tour hamiltonien et la distance
+def cristo_complete(data, verbose=False):
+    """
+    Algorithme de Christofides complet : retourne le tour hamiltonien et la distance.
+
+    Args:
+        data: DataFrame avec colonnes Ville, Latitude, Longitude
+        verbose: Afficher les informations de progression
+
+    Returns:
+        Dictionnaire contenant:
+            - tour: Tour hamiltonien (liste de villes)
+            - distance: Distance totale du tour en km
+            - G: Graphe complet
+            - mst: Arbre couvrant minimal
+            - matching: Appariement de poids minimal
+            - odd_nodes: Sommets de degré impair
+            - pos: Positions des villes
+    """
+    # --- Graphe complet pondéré ---
+    G = nx.Graph()
+    for i, v1 in data.iterrows():
+        for j, v2 in data.iterrows():
+            if i < j:
+                dist = haversine(v1["Latitude"], v1["Longitude"], v2["Latitude"], v2["Longitude"])
+                G.add_edge(v1["Ville"], v2["Ville"], weight=dist)
+
+    # ---  Minimum Spanning Tree ---
+    mst = nx.minimum_spanning_tree(G, weight="weight")
+
+    # --- Sommets de degré impair ---
+    odd_nodes = [node for node in mst.nodes() if mst.degree(node) % 2 == 1]
+
+    # --- Sous-graphe des sommets impairs ---
+    odd_subgraph = G.subgraph(odd_nodes)
+
+    # --- Minimum Weight Perfect Matching du sous-graphe ---
+    matching = nx.algorithms.matching.min_weight_matching(odd_subgraph, weight="weight")
+
+    if verbose:
+        print(f"\nChristofides - Sommets impairs : {len(odd_nodes)}")
+        print(f"Christofides - Appariements MWPM : {len(matching)}")
+
+    # --- Créer un multi-graphe combinant MST et MWPM ---
+    multigraph = nx.MultiGraph()
+    multigraph.add_edges_from(mst.edges())
+    multigraph.add_edges_from(matching)
+
+    # --- Trouver un circuit eulérien ---
+    eulerian_circuit = list(nx.eulerian_circuit(multigraph))
+
+    # --- Convertir en tour hamiltonien (supprimer les doublons) ---
+    visited = set()
+    hamiltonian_tour = []
+
+    for u, v in eulerian_circuit:
+        if u not in visited:
+            visited.add(u)
+            hamiltonian_tour.append(u)
+
+    # --- Calculer la distance totale ---
+    total_distance = calculate_tour_distance(hamiltonian_tour, data)
+
+    if verbose:
+        print(f"Christofides - Distance totale : {total_distance:.2f} km")
+
+    pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
+
+    return {
+        "tour": hamiltonian_tour,
+        "distance": total_distance,
+        "G": G,
+        "mst": mst,
+        "matching": matching,
+        "odd_nodes": odd_nodes,
+        "pos": pos
+    }
+
 
 # --- Affichage avec fond de carte ---
 def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_color='whitesmoke', label=''):
