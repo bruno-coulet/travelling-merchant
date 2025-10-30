@@ -328,8 +328,7 @@ sans cycle, et suffisamment d’arêtes pour rester connexe.
 
 **Autrement dit :**
 
-- il “couvre” tous les sommets (rien n’est oublié)
-- il relie tout le monde (donc connexe)
+- il relie (“couvre”) tout les sommets (donc connexe)
 - mais sans cycle (aucune redondance inutile)
 
 **MST - minimum spanning tree - arbre couvrant minimal**
