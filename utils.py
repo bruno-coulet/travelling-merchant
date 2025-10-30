@@ -12,6 +12,9 @@ from mpl_toolkits.basemap import Basemap
 # 
 # =============================================================
 
+
+
+# --- Distance de Haversine entre 2 points (lat, lon) ---
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371  # rayon moyen de la Terre en km
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
@@ -22,88 +25,13 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     
     return R * c  # distance en km
+# -------------------------------------------------------
 
-# def plot_graph(data):
-    
-#     # --- Création du graphe ---
-#     G = nx.Graph()
 
-#     # Ajout des nœuds avec attributs (latitude, longitude)
-#     for _, row in data.iterrows():
-#         G.add_node(row["Ville"], pos=(row["Longitude"], row["Latitude"]))
 
-#     # --- Ajout des arêtes pondérées ---
-#     for i, v1 in data.iterrows():
-#         for j, v2 in data.iterrows():
-#             if i < j:  # éviter doublons
-#                 d = haversine(v1["Latitude"], v1["Longitude"], v2["Latitude"], v2["Longitude"])
-#                 G.add_edge(v1["Ville"], v2["Ville"], weight=d)
 
-#     # --- Récupération des positions géographiques ---
-#     pos = nx.get_node_attributes(G, "pos")
 
-#     # --- Affichage ---
-#     plt.figure(figsize=(10, 8))
-#     nx.draw(
-#         G, pos,
-#         with_labels=True,
-#         node_size=300,
-#         node_color="lightblue",
-#         font_size=8,
-#         edge_color="lightgray"
-#     )
-#     plt.title("Réseau des villes françaises (distance de Haversine)")
-#     plt.xlabel("Longitude")
-#     plt.ylabel("Latitude")
-#     plt.show()
-
-# def plot_graph_map(data):
-#     # Crée le graphe complet comme avant
-#     G = nx.Graph()
-#     for _, row in data.iterrows():
-#         G.add_node(row["Ville"], pos=(row["Longitude"], row["Latitude"]))
-#     for i, v1 in data.iterrows():
-#         for j, v2 in data.iterrows():
-#             if i < j:
-#                 d = haversine(v1["Latitude"], v1["Longitude"], v2["Latitude"], v2["Longitude"])
-#                 G.add_edge(v1["Ville"], v2["Ville"], weight=d)
-
-#     pos = {n: (data.loc[data["Ville"] == n, "Longitude"].values[0],
-#                data.loc[data["Ville"] == n, "Latitude"].values[0])
-#            for n in G.nodes()}
-
-#     plt.figure(figsize=(10, 8))
-
-#     # --- Configuration de la carte ---
-#     m = Basemap(
-#         projection='merc',
-#         llcrnrlon=min(data["Longitude"]) - 1,
-#         llcrnrlat=min(data["Latitude"]) - 1,
-#         urcrnrlon=max(data["Longitude"]) + 1,
-#         urcrnrlat=max(data["Latitude"]) + 1,
-#         resolution='i'
-#     )
-#     # dessiner les côtes, continents, frontières
-#     m.drawcoastlines()
-#     m.drawcountries()
-#     m.fillcontinents(color='lightgray', lake_color='aqua')
-#     m.drawmapboundary(fill_color='aqua')
-
-#     # Convertir les positions (lon, lat) vers les coordonnées de la carte
-#     # Note : Basemap attend les coordonnées en (x, y) projetées
-#     x, y = m(
-#         [pos[n][0] for n in G.nodes()],
-#         [pos[n][1] for n in G.nodes()]
-#     )
-#     projected_pos = {n: (x_i, y_i) for n, (x_i, y_i) in zip(G.nodes(), zip(x, y))}
-
-#     # --- Dessiner le graphe par-dessus ---
-#     nx.draw_networkx_nodes(G, projected_pos, node_size=300, node_color="lightblue")
-#     nx.draw_networkx_edges(G, projected_pos, edge_color="gray")
-#     nx.draw_networkx_labels(G, projected_pos, font_size=8)
-
-#     plt.title("Réseau des villes (avec fond de carte)")
-#     plt.show()
+# -------- Algo de Christofides ---------
 
 # Version modulaire cristo algorithme
 def cristo_algo(data):
@@ -147,7 +75,6 @@ def cristo_algo(data):
         "pos": pos
     }
     return g_data
-
 
 # --- Affichage avec fond de carte ---
 def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_color='whitesmoke', label=''):
@@ -211,10 +138,9 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     plt.tight_layout()
     plt.show()
 
-
-# --- Fonction séquentielle pour visualiser étape par étape ---
+# --- Affichage séquentielle pour visualiser étape par étape ---
 def crist_steps(g_data):
-
+    
     steps = [
         ("Graphe complet", True, False, False),
         ("MST - arbre couvrant minimal", False, True, False),
@@ -226,3 +152,5 @@ def crist_steps(g_data):
         print(f"--- {title} ---")
         cristo_plot(g_data, show_full=show_full, show_mst=show_mst, show_matching=show_matching, label=title)
         input("Appuyez sur Entrée pour passer à l'étape suivante...")
+
+# ----------------------------------------
