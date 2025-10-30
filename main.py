@@ -20,9 +20,9 @@ print("="*70)
 # --- Configurations de l'algorithme génétique à tester ---
 genetic_configs = [
     {"pop_size": 50, "generations": 100, "mutation_rate": 0.1, "elite_size": 5},
-    {"pop_size": 100, "generations": 200, "mutation_rate": 0.1, "elite_size": 10},
-    {"pop_size": 150, "generations": 300, "mutation_rate": 0.15, "elite_size": 10},
-    {"pop_size": 200, "generations": 500, "mutation_rate": 0.1, "elite_size": 15},
+    {"pop_size": 60, "generations": 125, "mutation_rate": 0.1, "elite_size": 10},
+    {"pop_size": 100, "generations": 150, "mutation_rate": 0.15, "elite_size": 10},
+    {"pop_size": 150, "generations": 175, "mutation_rate": 0.1, "elite_size": 15},
 ]
 
 # --- Lancer la comparaison ---
