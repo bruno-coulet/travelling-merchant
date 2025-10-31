@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
 from mpl_toolkits.basemap import Basemap
-from utils import cristo_complete
+from utils import cristo_algo, basemap
 from genetique import genetic_tsp
 
 
@@ -30,21 +30,10 @@ def plot_tour_on_map(tour, data, distance, title, color='blue', bg_color='lightb
     G = nx.Graph()
     pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
 
-    plt.figure(figsize=(12, 10))
+    plt.figure(figsize=(12, 12))
 
-    # --- Création de la carte de fond ---
-    m = Basemap(
-        projection='merc',
-        llcrnrlon=min(coord[0] for coord in pos.values()) - 1,
-        llcrnrlat=min(coord[1] for coord in pos.values()) - 1,
-        urcrnrlon=max(coord[0] for coord in pos.values()) + 1,
-        urcrnrlat=max(coord[1] for coord in pos.values()) + 1,
-        resolution='i'
-    )
-    m.drawcoastlines()
-    m.drawcountries()
-    m.fillcontinents(color=bg_color, lake_color='aqua')
-    m.drawmapboundary(fill_color='aqua')
+    m = basemap(pos, bg_color)
+
 
     # --- Convertir positions ---
     x, y = m([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
@@ -66,7 +55,7 @@ def plot_tour_on_map(tour, data, distance, title, color='blue', bg_color='lightb
     # --- Labels ---
     nx.draw_networkx_labels(G, projected_pos, font_size=8, font_color='black', font_weight='bold')
 
-    plt.title(f"{title}\nDistance totale: {distance:.2f} km", fontsize=12, fontweight='bold')
+    plt.title(f"{title}\nDistance totale: {distance:.2f} km", fontsize=10, fontweight='bold')
     plt.tight_layout()
     plt.show()
 
@@ -80,7 +69,7 @@ def compare_tours_side_by_side(data, genetic_params=None):
         genetic_params: Paramètres pour l'algorithme génétique (dict)
     """
     if genetic_params is None:
-        genetic_params = {"pop_size": 100, "generations": 50, "mutation_rate": 0.1, "elite_size": 10}
+        genetic_params = {"pop_size": 50, "generations": 10, "mutation_rate": 0.1, "elite_size": 10}
 
     print("\n" + "="*70)
     print("COMPARAISON VISUELLE DES TOURS")
@@ -88,7 +77,7 @@ def compare_tours_side_by_side(data, genetic_params=None):
 
     # --- Exécuter Christofides ---
     print("\n[1/2] Exécution de Christofides...")
-    result_cristo = cristo_complete(data, verbose=True)
+    result_cristo = cristo_algo(data, verbose=True)
 
     # --- Exécuter Génétique ---
     print("\n[2/2] Exécution de l'algorithme génétique...")
@@ -102,19 +91,8 @@ def compare_tours_side_by_side(data, genetic_params=None):
     plt.sca(ax1)
 
     pos = result_cristo["pos"]
-    m1 = Basemap(
-        projection='merc',
-        llcrnrlon=min(coord[0] for coord in pos.values()) - 1,
-        llcrnrlat=min(coord[1] for coord in pos.values()) - 1,
-        urcrnrlon=max(coord[0] for coord in pos.values()) + 1,
-        urcrnrlat=max(coord[1] for coord in pos.values()) + 1,
-        resolution='i',
-        ax=ax1
-    )
-    m1.drawcoastlines()
-    m1.drawcountries()
-    m1.fillcontinents(color='lightyellow', lake_color='aqua')
-    m1.drawmapboundary(fill_color='aqua')
+    m1 = basemap(pos, bg_color='whitesmoke')
+
 
     x, y = m1([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
     projected_pos = {n: (x_i, y_i) for n, x_i, y_i in zip(pos.keys(), x, y)}
@@ -131,26 +109,14 @@ def compare_tours_side_by_side(data, genetic_params=None):
     nx.draw_networkx_labels(G1, projected_pos, font_size=7, font_color='black', font_weight='bold', ax=ax1)
 
     ax1.set_title(f"Christofides\nDistance: {result_cristo['distance']:.2f} km",
-                 fontsize=12, fontweight='bold')
+                 fontsize=10, fontweight='bold')
 
     # GÉNÉTIQUE
     ax2 = fig.add_subplot(122)
     plt.sca(ax2)
 
     pos2 = result_genetic["pos"]
-    m2 = Basemap(
-        projection='merc',
-        llcrnrlon=min(coord[0] for coord in pos2.values()) - 1,
-        llcrnrlat=min(coord[1] for coord in pos2.values()) - 1,
-        urcrnrlon=max(coord[0] for coord in pos2.values()) + 1,
-        urcrnrlat=max(coord[1] for coord in pos2.values()) + 1,
-        resolution='i',
-        ax=ax2
-    )
-    m2.drawcoastlines()
-    m2.drawcountries()
-    m2.fillcontinents(color='lightblue', lake_color='aqua')
-    m2.drawmapboundary(fill_color='aqua')
+    m2 = basemap(pos2, bg_color='whitesmoke')
 
     x2, y2 = m2([coord[0] for coord in pos2.values()], [coord[1] for coord in pos2.values()])
     projected_pos2 = {n: (x_i, y_i) for n, x_i, y_i in zip(pos2.keys(), x2, y2)}
@@ -168,7 +134,7 @@ def compare_tours_side_by_side(data, genetic_params=None):
 
     params_str = f"pop={genetic_params['pop_size']}, gen={genetic_params['generations']}"
     ax2.set_title(f"Algorithme Génétique ({params_str})\nDistance: {result_genetic['best_distance']:.2f} km",
-                 fontsize=12, fontweight='bold')
+                 fontsize=10, fontweight='bold')
 
     # --- Comparaison ---
     diff = result_genetic['best_distance'] - result_cristo['distance']
@@ -176,7 +142,7 @@ def compare_tours_side_by_side(data, genetic_params=None):
 
     fig.suptitle(f"Comparaison TSP - 20 villes françaises\n" +
                 f"Différence: {diff:+.2f} km ({diff_percent:+.2f}%)",
-                fontsize=16, fontweight='bold')
+                fontsize=12, fontweight='bold')
 
     plt.tight_layout()
     plt.show()

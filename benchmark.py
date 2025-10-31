@@ -92,7 +92,8 @@ def compare_algorithms(data, genetic_params_list, save_to_csv=True, csv_filename
     Returns:
         DataFrame avec tous les résultats
     """
-    from utils import cristo_complete
+    # from utils import cristo_complete
+    from utils import cristo_algo
     from genetique import genetic_tsp
 
     print("\n" + "="*70)
@@ -104,7 +105,8 @@ def compare_algorithms(data, genetic_params_list, save_to_csv=True, csv_filename
     # --- Test Christofides ---
     print("\n[1/X] Exécution de Christofides...")
     metrics_cristo, result_cristo = measure_performance(
-        cristo_complete,
+        # cristo_complete,
+        cristo_algo,
         data,
         "Christofides",
         verbose=False

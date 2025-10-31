@@ -4,7 +4,7 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
-from utils import haversine
+from utils import haversine, calculate_tour_distance
 
 
 # =======  Algorithme Genetique pour le TSP =======
@@ -13,31 +13,6 @@ from utils import haversine
 # avec selection par tournoi, croisement OX et mutation par swap
 #
 # =================================================
-
-
-def calculate_tour_distance(tour, data):
-    """
-    Calcule la distance totale d'un tour (chemin hamiltonien ferme).
-
-    Args:
-        tour: Liste des noms de villes dans l'ordre de visite
-        data: DataFrame avec colonnes Ville, Latitude, Longitude
-
-    Returns:
-        Distance totale en km
-    """
-    total_distance = 0
-    for i in range(len(tour)):
-        city1 = tour[i]
-        city2 = tour[(i + 1) % len(tour)]  # retour e la premiere ville
-
-        # Recuperer les coordonnees
-        lat1, lon1 = data.loc[data["Ville"] == city1, ["Latitude", "Longitude"]].values[0]
-        lat2, lon2 = data.loc[data["Ville"] == city2, ["Latitude", "Longitude"]].values[0]
-
-        total_distance += haversine(lat1, lon1, lat2, lon2)
-
-    return total_distance
 
 
 def create_initial_population(cities, pop_size):
