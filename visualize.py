@@ -19,7 +19,7 @@ MUTATION_RATE = 0.6
 ELITE_SIZE = 10
 
 
-def compare_tours_side_by_side(data, genetic_params=None):
+def compare_plot(data, genetic_params=None):
     """
     Compare visuellement Christofides et l'algorithme génétique côte à côte.
 
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     data = pd.read_csv("data/villes.csv")
 
     # --- Comparaison visuelle ---
-    compare_tours_side_by_side(
+    compare_plot(
         data,
         genetic_params={"pop_size": POPULATION, "generations": GENERATIONS, "mutation_rate": MUTATION_RATE, "elite_size": ELITE_SIZE}
     )
