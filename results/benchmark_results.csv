@@ -1,6 +1,0 @@
-algorithm,distance_km,execution_time_s,cpu_percent,memory_mb,verbose,pop_size,generations,mutation_rate,elite_size,memory_total_mb,timestamp
-Christofides,3445.6,0.0455,0.0,0.59,False,,,,,114.5,2025-10-30 13:40:45
-Genetique,3342.6,176.0168,0.0,0.29,False,50.0,100.0,0.1,5.0,114.79,2025-10-30 13:43:41
-Genetique,3157.12,749.1745,0.0,0.19,False,100.0,200.0,0.1,10.0,114.98,2025-10-30 13:56:11
-Genetique,3157.12,1746.8939,0.0,-54.93,False,150.0,300.0,0.15,10.0,60.05,2025-10-30 14:25:18
-Genetique,3157.12,4075.6825,0.0,-25.35,False,200.0,500.0,0.1,15.0,34.74,2025-10-30 15:33:14

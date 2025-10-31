@@ -1,3 +1,10 @@
+import os
+# Forcer BLAS/OpenMP/MKL en mono-thread pour des comparaisons reproductibles
+# (utile pour éviter que numpy/scipy MKL/OpenBLAS n'utilisent plusieurs coeurs)
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+
 import pandas as pd
 from benchmark import compare_algorithms
 
