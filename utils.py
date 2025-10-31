@@ -48,6 +48,8 @@ def cristo_algo(data):
 
     # --- Sommets de degré impair ---
     odd_nodes = [node for node in mst.nodes() if mst.degree(node) % 2 == 1]
+    # --- Sommets de degré pair ---
+    even_nodes = [node for node in mst.nodes() if mst.degree(node) % 2 == 0]
 
     # --- Sous-graphe des sommets impairs ---
     odd_subgraph = G.subgraph(odd_nodes)
@@ -72,6 +74,7 @@ def cristo_algo(data):
         "mst": mst,
         "matching": matching,
         "odd_nodes": odd_nodes,
+        "even_nodes": even_nodes,
         "pos": pos
     }
     return g_data
@@ -83,6 +86,7 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     mst = g_data["mst"]
     matching = g_data["matching"]
     odd_nodes = g_data["odd_nodes"]
+    even_nodes = g_data["even_nodes"]
     pos = g_data["pos"]
 
     plt.figure(figsize=(12, 10))
@@ -108,6 +112,7 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     # --- Sommets ---
     nx.draw_networkx_nodes(
         G, projected_pos,
+        nodelist=even_nodes,
         node_color='orange',
         node_size=250,
         label='Sommets pairs'
@@ -132,6 +137,11 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     # --- Labels pour les sommets impairs ---
     odd_labels = {node: node for node in odd_nodes}
     nx.draw_networkx_labels(G, projected_pos, labels=odd_labels, font_size=9, font_color='black', font_weight='bold')
+    
+    # --- Labels pour les sommets pairs ---
+    even_labels = {node: node for node in even_nodes}
+    nx.draw_networkx_labels(G, projected_pos, labels=even_labels, font_size=9, font_color='black', font_weight='bold')
+
 
     plt.legend(loc='upper left', fontsize=9, frameon=True, fancybox=True, shadow=True)
     plt.title(f"Algorithme de Christofides - étape {label}", fontsize=12, fontweight='bold')

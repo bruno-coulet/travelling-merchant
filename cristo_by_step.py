@@ -21,15 +21,6 @@ data = pd.read_csv("data/villes.csv")
 
 
 
-# ------------ brouillons --------------------
-# plot_graph(data)
-# cristo_et_affichage(data)
-# plot_graph_map(data)
-# cristo_plot(g_data)
-# ----------------------------------------
-
-
-
 # -------------  Christofides -------------
 # Exécution de l'algo 
 g_data = cristo_algo(data)
@@ -38,7 +29,6 @@ crist_steps(g_data)
 # -----------------------------------------
 
 
-# -------------  Génétique -------------
-genetic_algorithm(g_data)
+
 
 
