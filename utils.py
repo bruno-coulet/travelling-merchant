@@ -56,53 +56,53 @@ def calculate_tour_distance(tour, data):
 
 
 
-# -------- Algo de Christofides ---------
+# # -------- Algo de Christofides ---------
 
-# Version modulaire Christo algorithme
-def cristo_algo(data):
-    # --- Graphe complet pondéré ---
-    G = nx.Graph()
-    for i, v1 in data.iterrows():
-        for j, v2 in data.iterrows():
-            if i < j:
-                dist = haversine(v1["Latitude"], v1["Longitude"], v2["Latitude"], v2["Longitude"])
-                G.add_edge(v1["Ville"], v2["Ville"], weight=dist)
+# # Version modulaire Christo algorithme
+# def cristo_algo(data):
+#     # --- Graphe complet pondéré ---
+#     G = nx.Graph()
+#     for i, v1 in data.iterrows():
+#         for j, v2 in data.iterrows():
+#             if i < j:
+#                 dist = haversine(v1["Latitude"], v1["Longitude"], v2["Latitude"], v2["Longitude"])
+#                 G.add_edge(v1["Ville"], v2["Ville"], weight=dist)
 
-    # ---  Minimum Spanning Tree ---
-    mst = nx.minimum_spanning_tree(G, weight="weight")
+#     # ---  Minimum Spanning Tree ---
+#     mst = nx.minimum_spanning_tree(G, weight="weight")
 
-    # --- Sommets de degré impair ---
-    odd_nodes = [node for node in mst.nodes() if mst.degree(node) % 2 == 1]
+#     # --- Sommets de degré impair ---
+#     odd_nodes = [node for node in mst.nodes() if mst.degree(node) % 2 == 1]
 
-    # --- Sous-graphe des sommets impairs ---
-    odd_subgraph = G.subgraph(odd_nodes)
+#     # --- Sous-graphe des sommets impairs ---
+#     odd_subgraph = G.subgraph(odd_nodes)
 
-    # --- Minimum Weight Perfect Matching du ous-graphe ---
-    matching = nx.algorithms.matching.min_weight_matching(odd_subgraph, weight="weight")
+#     # --- Minimum Weight Perfect Matching du ous-graphe ---
+#     matching = nx.algorithms.matching.min_weight_matching(odd_subgraph, weight="weight")
 
-    # --- Print le résultat ---
-    print("Sommets impairs :", odd_nodes)
-    print("\nAppariements du MWPM :")
-    for u, v in matching:
-        print(f"{u} — {v} : {G[u][v]['weight']:.2f} km")
+#     # --- Print le résultat ---
+#     print("Sommets impairs :", odd_nodes)
+#     print("\nAppariements du MWPM :")
+#     for u, v in matching:
+#         print(f"{u} — {v} : {G[u][v]['weight']:.2f} km")
 
-    # --- Visualisation MST + MWPM ---
-    import matplotlib.pyplot as plt
+#     # --- Visualisation MST + MWPM ---
+#     import matplotlib.pyplot as plt
 
-    pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
+#     pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
 
-    # g_data = G, mst, matching, odd_nodes, pos
-    g_data = {
-        "G": G,
-        "mst": mst,
-        "matching": matching,
-        "odd_nodes": odd_nodes,
-        "pos": pos
-    }
-    return g_data
+#     # g_data = G, mst, matching, odd_nodes, pos
+#     g_data = {
+#         "G": G,
+#         "mst": mst,
+#         "matching": matching,
+#         "odd_nodes": odd_nodes,
+#         "pos": pos
+#     }
+#     return g_data
 
 
-# Christo algorithme +  tour hamiltonien et la distance
+# # Christo algorithme +  tour hamiltonien et la distance
 def cristo_complete(data, verbose=False):
     """
     Algorithme de Christofides complet : retourne le tour hamiltonien et la distance.
@@ -181,81 +181,81 @@ def cristo_complete(data, verbose=False):
     }
 
 
-# --- Affichage avec fond de carte ---
-def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_color='whitesmoke', label=''):
+# # --- Affichage avec fond de carte ---
+# def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_color='whitesmoke', label=''):
 
-    G = g_data["G"]
-    mst = g_data["mst"]
-    matching = g_data["matching"]
-    odd_nodes = g_data["odd_nodes"]
-    pos = g_data["pos"]
+#     G = g_data["G"]
+#     mst = g_data["mst"]
+#     matching = g_data["matching"]
+#     odd_nodes = g_data["odd_nodes"]
+#     pos = g_data["pos"]
 
-    plt.figure(figsize=(12, 10))
+#     plt.figure(figsize=(12, 10))
 
-    # --- Création de la carte de fond ---
-    m = Basemap(
-        projection='merc',
-        llcrnrlon=min(row[0] for row in pos.values()) - 1,
-        llcrnrlat=min(row[1] for row in pos.values()) - 1,
-        urcrnrlon=max(row[0] for row in pos.values()) + 1,
-        urcrnrlat=max(row[1] for row in pos.values()) + 1,
-        resolution='i'
-    )
-    m.drawcoastlines()
-    m.drawcountries()
-    m.fillcontinents(color=bg_color, lake_color='aqua')
-    m.drawmapboundary(fill_color='aqua')
+#     # --- Création de la carte de fond ---
+#     m = Basemap(
+#         projection='merc',
+#         llcrnrlon=min(row[0] for row in pos.values()) - 1,
+#         llcrnrlat=min(row[1] for row in pos.values()) - 1,
+#         urcrnrlon=max(row[0] for row in pos.values()) + 1,
+#         urcrnrlat=max(row[1] for row in pos.values()) + 1,
+#         resolution='i'
+#     )
+#     m.drawcoastlines()
+#     m.drawcountries()
+#     m.fillcontinents(color=bg_color, lake_color='aqua')
+#     m.drawmapboundary(fill_color='aqua')
 
-    # --- Convertir positions lat/lon en coordonnées projetées ---
-    x, y = m([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
-    projected_pos = {n: (x_i, y_i) for n, x_i, y_i in zip(G.nodes(), x, y)}
+#     # --- Convertir positions lat/lon en coordonnées projetées ---
+#     x, y = m([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
+#     projected_pos = {n: (x_i, y_i) for n, x_i, y_i in zip(G.nodes(), x, y)}
 
-    # --- Sommets ---
-    nx.draw_networkx_nodes(
-        G, projected_pos,
-        node_color='orange',
-        node_size=250,
-        label='Sommets pairs'
-    )
-    nx.draw_networkx_nodes(
-        G, projected_pos,
-        nodelist=odd_nodes,
-        node_color='red',
-        node_size=300,
-        label='Sommets impairs'
-    )
+#     # --- Sommets ---
+#     nx.draw_networkx_nodes(
+#         G, projected_pos,
+#         node_color='orange',
+#         node_size=250,
+#         label='Sommets pairs'
+#     )
+#     nx.draw_networkx_nodes(
+#         G, projected_pos,
+#         nodelist=odd_nodes,
+#         node_color='red',
+#         node_size=300,
+#         label='Sommets impairs'
+#     )
 
-    # --- Arêtes ---
-    if show_full:
-        nx.draw_networkx_edges(G, projected_pos, edge_color='gray', width=2, alpha=0.5, label='Graphe complet')
-    if show_mst:
-        nx.draw_networkx_edges(mst, projected_pos, edge_color='green', width=3, label='MST')
-    if show_matching:
-        nx.draw_networkx_edges(G, projected_pos, edgelist=list(matching),
-                               edge_color='red', style='dashed', width=2, label='MWPM')
+#     # --- Arêtes ---
+#     if show_full:
+#         nx.draw_networkx_edges(G, projected_pos, edge_color='gray', width=2, alpha=0.5, label='Graphe complet')
+#     if show_mst:
+#         nx.draw_networkx_edges(mst, projected_pos, edge_color='green', width=3, label='MST')
+#     if show_matching:
+#         nx.draw_networkx_edges(G, projected_pos, edgelist=list(matching),
+#                                edge_color='red', style='dashed', width=2, label='MWPM')
 
-    # --- Labels pour les sommets impairs ---
-    odd_labels = {node: node for node in odd_nodes}
-    nx.draw_networkx_labels(G, projected_pos, labels=odd_labels, font_size=9, font_color='black', font_weight='bold')
+#     # --- Labels pour les sommets impairs ---
+#     odd_labels = {node: node for node in odd_nodes}
+#     nx.draw_networkx_labels(G, projected_pos, labels=odd_labels, font_size=9, font_color='black', font_weight='bold')
 
-    plt.legend(loc='upper left', fontsize=9, frameon=True, fancybox=True, shadow=True)
-    plt.title(f"Algorithme de Christofides - étape {label}", fontsize=12, fontweight='bold')
-    plt.tight_layout()
-    plt.show()
+#     plt.legend(loc='upper left', fontsize=9, frameon=True, fancybox=True, shadow=True)
+#     plt.title(f"Algorithme de Christofides - étape {label}", fontsize=12, fontweight='bold')
+#     plt.tight_layout()
+#     plt.show()
 
-# --- Affichage séquentielle pour visualiser étape par étape ---
-def crist_steps(g_data):
+# # --- Affichage séquentielle pour visualiser étape par étape ---
+# def crist_steps(g_data):
     
-    steps = [
-        ("Graphe complet", True, False, False),
-        ("MST - arbre couvrant minimal", False, True, False),
-        ("MWPM - minimum weight perfect matching", False, False, True),
-        (" fusion de MST et MWPM", False, True, True)
-    ]
+#     steps = [
+#         ("Graphe complet", True, False, False),
+#         ("MST - arbre couvrant minimal", False, True, False),
+#         ("MWPM - minimum weight perfect matching", False, False, True),
+#         (" fusion de MST et MWPM", False, True, True)
+#     ]
 
-    for title, show_full, show_mst, show_matching in steps:
-        print(f"--- {title} ---")
-        cristo_plot(g_data, show_full=show_full, show_mst=show_mst, show_matching=show_matching, label=title)
-        input("Appuyez sur Entrée pour passer à l'étape suivante...")
+#     for title, show_full, show_mst, show_matching in steps:
+#         print(f"--- {title} ---")
+#         cristo_plot(g_data, show_full=show_full, show_mst=show_mst, show_matching=show_matching, label=title)
+#         input("Appuyez sur Entrée pour passer à l'étape suivante...")
 
-# ----------------------------------------
+# # ----------------------------------------

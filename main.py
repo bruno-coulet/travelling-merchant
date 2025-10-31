@@ -13,7 +13,7 @@ from benchmark import compare_algorithms
 data = pd.read_csv("data/villes.csv")
 
 print("\n" + "="*70)
-print("PROJET TSP - COMPARAISON D'ALGORITHMES")
+print("Travelling-merchant - résolution du TSP - COMPARAISON D'ALGORITHMES")
 print(f"Nombre de villes : {len(data)}")
 print("="*70)
 
