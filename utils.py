@@ -6,10 +6,12 @@ from mpl_toolkits.basemap import Basemap
 
 # =======  Liste de fonctions utilisées dans le main.py =======
 # 
-# haversine() permet de calculer la distance entre 2 point géographiques
-# plot_graph() permet d'affciher ke graph des villes
-# cristo() implémente les étapes de l'algotithme de Christofides
-# 
+# haversine().......... calcule la distance entre 2 point géographiques
+# basemap()............ crée une carte de fond
+# cristo_algo()........ implémente les étapes de l'algorithme de Christofides
+# cristo_plot()........ affiche l'algorithme de Christofides sur le fond de carte
+# cristo_step()........ décompose et affiche l'algorithme de Christofides sur le fond de carte
+#
 # =============================================================
 
 
@@ -25,7 +27,6 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     
     return R * c  # distance en km
-# -------------------------------------------------------
 
 
 
@@ -46,7 +47,6 @@ def basemap(pos, bg_color='whitesmoke'):
     m.fillcontinents(color=bg_color, lake_color='aqua')
     m.drawmapboundary(fill_color='aqua')
     return m
-
 
 # -------- Algo de Christofides ---------
 
@@ -121,7 +121,6 @@ def cristo_algo(data):
         "total_distance": total_distance
     }
     return g_data
-
 
 
 # --- Affichage avec fond de carte ---
@@ -200,5 +199,3 @@ def cristo_steps(g_data):
         print(f"--- {title} ---")
         cristo_plot(g_data, show_full=show_full, show_mst=show_mst, show_matching=show_matching, label=title)
         input("Appuyez sur Entrée pour passer à l'étape suivante...")
-
-# ----------------------------------------
