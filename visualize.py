@@ -169,5 +169,5 @@ if __name__ == "__main__":
     # --- Comparaison visuelle ---
     compare_tours_side_by_side(
         data,
-        genetic_params={"pop_size": 50, "generations": 10, "mutation_rate": 0.1, "elite_size": 10}
+        genetic_params={"pop_size": 10, "generations": 10, "mutation_rate": 0.1, "elite_size": 10}
     )

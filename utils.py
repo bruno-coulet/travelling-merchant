@@ -105,13 +105,21 @@ def cristo_algo(data, verbose=False):
     eulerian_circuit = list(nx.eulerian_circuit(multigraph))
 
     # --- Extraire la tournée finale (Hamiltonienne) ---
-    visited = set()
-    tour = []
+    # visited = set()
+    # tour = []
+    # for u, v in eulerian_circuit:
+    #     if u not in visited:
+    #         tour.append(u)
+    #         visited.add(u)
+    # tour.append(tour[0])  # retour au point de départ
+    visited = []
     for u, v in eulerian_circuit:
         if u not in visited:
-            tour.append(u)
-            visited.add(u)
-    tour.append(tour[0])  # retour au point de départ
+            visited.append(u)
+    # On ferme le cycle en revenant au point de départ
+    tour = visited + [visited[0]]
+
+
 
     distance = calculate_tour_distance(tour, data)
             
