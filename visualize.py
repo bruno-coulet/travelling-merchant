@@ -13,51 +13,10 @@ from genetique import genetic_tsp
 #
 # ===========================================================
 
-
-def plot_tour_on_map(tour, data, distance, title, color='blue', bg_color='lightblue'):
-    """
-    Affiche un tour sur une carte de France.
-
-    Args:
-        tour: Liste des villes dans l'ordre de visite
-        data: DataFrame des villes
-        distance: Distance totale du tour
-        title: Titre du graphique
-        color: Couleur du tour
-        bg_color: Couleur de fond
-    """
-    # Créer graphe pour visualisation
-    G = nx.Graph()
-    pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
-
-    plt.figure(figsize=(12, 12))
-
-    m = basemap(pos, bg_color)
-
-
-    # --- Convertir positions ---
-    x, y = m([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
-    projected_pos = {n: (x_i, y_i) for n, x_i, y_i in zip(pos.keys(), x, y)}
-
-    # --- Dessiner le tour ---
-    tour_edges = [(tour[i], tour[(i + 1) % len(tour)]) for i in range(len(tour))]
-
-    # Ajouter les arêtes au graphe
-    for u, v in tour_edges:
-        G.add_edge(u, v)
-
-    nx.draw_networkx_edges(G, projected_pos, edgelist=tour_edges,
-                          edge_color=color, width=3, alpha=0.8)
-
-    # --- Sommets ---
-    nx.draw_networkx_nodes(G, projected_pos, node_color='red', node_size=200)
-
-    # --- Labels ---
-    nx.draw_networkx_labels(G, projected_pos, font_size=8, font_color='black', font_weight='bold')
-
-    plt.title(f"{title}\nDistance totale: {distance:.2f} km", fontsize=10, fontweight='bold')
-    plt.tight_layout()
-    plt.show()
+POPULATION = 150
+GENERATIONS = 75
+MUTATION_RATE = 0.6
+ELITE_SIZE = 10
 
 
 def compare_tours_side_by_side(data, genetic_params=None):
@@ -69,7 +28,7 @@ def compare_tours_side_by_side(data, genetic_params=None):
         genetic_params: Paramètres pour l'algorithme génétique (dict)
     """
     if genetic_params is None:
-        genetic_params = {"pop_size": 50, "generations": 10, "mutation_rate": 0.1, "elite_size": 10}
+        genetic_params = {"pop_size": POPULATION, "generations": GENERATIONS, "mutation_rate": MUTATION_RATE, "elite_size": ELITE_SIZE}
 
     print("\n" + "="*70)
     print("COMPARAISON VISUELLE DES TOURS")
@@ -86,20 +45,27 @@ def compare_tours_side_by_side(data, genetic_params=None):
     # --- Créer figure avec 2 subplots ---
     fig = plt.figure(figsize=(20, 10))
 
-    # CHRISTOFIDES
+    # === CHRISTOFIDES ===
     ax1 = fig.add_subplot(121)
     plt.sca(ax1)
 
     pos = result_cristo["pos"]
-    m1 = basemap(pos, bg_color='whitesmoke')
+    m1 = basemap(pos, bg_color='lightyellow')
+    
 
 
     x, y = m1([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
     projected_pos = {n: (x_i, y_i) for n, x_i, y_i in zip(pos.keys(), x, y)}
 
     G1 = nx.Graph()
-    tour_edges_cristo = [(result_cristo["tour"][i], result_cristo["tour"][(i + 1) % len(result_cristo["tour"])])
-                        for i in range(len(result_cristo["tour"]))]
+    tour_cristo = result_cristo["tour"]
+    tour_edges_cristo = [(tour_cristo[i], tour_cristo[i + 1]) for i in range(len(tour_cristo) - 1)]
+    if tour_cristo[0] != tour_cristo[-1]:
+        tour_edges_cristo.append((tour_cristo[-1], tour_cristo[0]))  # fermer le tour si nécessaire
+
+    # Supprimer les boucles (ville → elle-même)
+    tour_edges_cristo = [(u, v) for u, v in tour_edges_cristo if u != v]
+
     for u, v in tour_edges_cristo:
         G1.add_edge(u, v)
 
@@ -109,21 +75,26 @@ def compare_tours_side_by_side(data, genetic_params=None):
     nx.draw_networkx_labels(G1, projected_pos, font_size=7, font_color='black', font_weight='bold', ax=ax1)
 
     ax1.set_title(f"Christofides\nDistance: {result_cristo['distance']:.2f} km",
-                 fontsize=10, fontweight='bold')
+                 fontsize=12, fontweight='bold', color='green')
 
-    # GÉNÉTIQUE
+    # === GÉNÉTIQUE ===
     ax2 = fig.add_subplot(122)
     plt.sca(ax2)
 
     pos2 = result_genetic["pos"]
-    m2 = basemap(pos2, bg_color='whitesmoke')
+    m2 = basemap(pos2, bg_color='lightyellow')
 
     x2, y2 = m2([coord[0] for coord in pos2.values()], [coord[1] for coord in pos2.values()])
     projected_pos2 = {n: (x_i, y_i) for n, x_i, y_i in zip(pos2.keys(), x2, y2)}
 
     G2 = nx.Graph()
-    tour_edges_genetic = [(result_genetic["best_tour"][i], result_genetic["best_tour"][(i + 1) % len(result_genetic["best_tour"])])
-                         for i in range(len(result_genetic["best_tour"]))]
+    tour_genetic = result_genetic["best_tour"]
+    tour_edges_genetic = [(tour_genetic[i], tour_genetic[i + 1]) for i in range(len(tour_genetic) - 1)]
+    if tour_genetic[0] != tour_genetic[-1]:
+        tour_edges_genetic.append((tour_genetic[-1], tour_genetic[0]))
+
+    tour_edges_genetic = [(u, v) for u, v in tour_edges_genetic if u != v]
+
     for u, v in tour_edges_genetic:
         G2.add_edge(u, v)
 
@@ -134,17 +105,16 @@ def compare_tours_side_by_side(data, genetic_params=None):
 
     params_str = f"pop={genetic_params['pop_size']}, gen={genetic_params['generations']}"
     ax2.set_title(f"Algorithme Génétique ({params_str})\nDistance: {result_genetic['best_distance']:.2f} km",
-                 fontsize=10, fontweight='bold')
+                 fontsize=12, fontweight='bold', color='blue')
 
     # --- Comparaison ---
     diff = result_genetic['best_distance'] - result_cristo['distance']
     diff_percent = (diff / result_cristo['distance']) * 100
 
-    fig.suptitle(f"Comparaison TSP - 20 villes françaises\n" +
-                f"Différence: {diff:+.2f} km ({diff_percent:+.2f}%)",
-                fontsize=12, fontweight='bold')
+    fig.suptitle(f"Comparaison TSP - 20 villes françaises - différence: {diff:+.2f} km ({diff_percent:+.2f}%)",
+                fontsize=14, fontweight='bold')
 
-    plt.tight_layout()
+    # plt.tight_layout()
     plt.show()
 
     # --- Résumé textuel ---
@@ -162,6 +132,7 @@ def compare_tours_side_by_side(data, genetic_params=None):
         print("\n🏆 Les deux algorithmes ont trouvé le même tour !")
 
 
+
 if __name__ == "__main__":
     # --- Chargement des données ---
     data = pd.read_csv("data/villes.csv")
@@ -169,5 +140,5 @@ if __name__ == "__main__":
     # --- Comparaison visuelle ---
     compare_tours_side_by_side(
         data,
-        genetic_params={"pop_size": 10, "generations": 10, "mutation_rate": 0.1, "elite_size": 10}
+        genetic_params={"pop_size": POPULATION, "generations": GENERATIONS, "mutation_rate": MUTATION_RATE, "elite_size": ELITE_SIZE}
     )
