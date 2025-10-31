@@ -198,10 +198,12 @@ def measure_performance(algorithm_func, data, algo_name, min_total_wall_time=2, 
     observed_nonzero.extend([v for v in cpu_times if v > 0])
     observed_nonzero.extend([d for lst in thread_deltas_by_tid.values() for d in lst if d > 0])
     cpu_tick_min = None
+    cpu_tick_max = None
     cpu_tick_median = None
     cpu_tick_samples = len(observed_nonzero)
     if observed_nonzero:
         cpu_tick_min = round(min(observed_nonzero), 6)
+        cpu_tick_max = round(max(observed_nonzero), 6)
         try:
             cpu_tick_median = round(statistics.median(observed_nonzero), 6)
         except Exception:
@@ -217,6 +219,7 @@ def measure_performance(algorithm_func, data, algo_name, min_total_wall_time=2, 
     # if only one iteration, don't traiter tick comme estimation fiable
     if iterations <= 1:
         cpu_tick_min = None
+        cpu_tick_max = None
         cpu_tick_median = None
         cpu_tick_samples = 0
 
@@ -251,6 +254,7 @@ def measure_performance(algorithm_func, data, algo_name, min_total_wall_time=2, 
     'cpu_delta_diff': delta_diff,
     'cpu_delta_diff_flag': delta_flag,
     'cpu_tick_min': cpu_tick_min,
+    'cpu_tick_max': cpu_tick_max,
     'cpu_tick_median': cpu_tick_median,
     'cpu_tick_samples': cpu_tick_samples,
     'memory_mb_mean': round(mem_mean, 6),
@@ -319,7 +323,7 @@ def compare_algorithms(data, genetic_params_list, save_to_csv=True, csv_filename
             mem_mean_f = mem_mean
             mem_std_f = mem_std
         if mem_used_est is not None and abs(float(mem_used_est)) >= 0.01:
-            print(f"  ✓ Mémoire (RSS moy ± écart‑type) : {mem_mean_f:.2f} ± {mem_std_f:.2f} MB — variation estimée {float(mem_used_est):.2f} MB")
+            print(f"  ✓ Mémoire (RSS moy ± écart‑type) : {mem_mean_f:.2f} ± {mem_std_f:.2f} MB — augmentation estimée {float(mem_used_est):.2f} MB")
         else:
             print(f"  ✓ Mémoire (RSS moy ± écart‑type) : {mem_mean_f:.2f} ± {mem_std_f:.2f} MB")
     else:
@@ -338,9 +342,10 @@ def compare_algorithms(data, genetic_params_list, save_to_csv=True, csv_filename
         # afficher estimation de résolution (min et médiane des deltas non nuls) si suffisant
         tick_min = metrics_cristo.get('cpu_tick_min')
         tick_med = metrics_cristo.get('cpu_tick_median')
+        tick_max = metrics_cristo.get('cpu_tick_max')
         tick_samples = metrics_cristo.get('cpu_tick_samples', 0)
         if tick_min is not None and tick_samples >= 3:
-            print(f"  ✓ Résolution estimée — min : {tick_min:.3f} s, médiane : {tick_med:.3f} s (échantillons non nuls = {tick_samples})")
+            print(f"  ✓ Résolution estimée — min : {tick_min:.3f} s, médiane : {tick_med:.3f} s, max : {tick_max:.3f} s (échantillons non nuls = {tick_samples})")
         else:
             print("  ✓ Résolution estimée : N/A (échantillons insuffisants)")
         # afficher moyennes par thread (filtrer threads inactifs)
