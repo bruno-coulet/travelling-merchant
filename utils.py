@@ -29,6 +29,23 @@ def haversine(lat1, lon1, lat2, lon2):
 
 
 
+# --- Création de la carte de fond ---
+def basemap(pos, bg_color='whitesmoke'):
+    lons = [coord[0] for coord in pos.values()]
+    lats = [coord[1] for coord in pos.values()]
+    m = Basemap(
+        projection='merc',
+        llcrnrlon=min(lons) - 1,
+        llcrnrlat=min(lats) - 1,
+        urcrnrlon=max(lons) + 1,
+        urcrnrlat=max(lats) + 1,
+        resolution='i'
+    )
+    m.drawcoastlines()
+    m.drawcountries()
+    m.fillcontinents(color=bg_color, lake_color='aqua')
+    m.drawmapboundary(fill_color='aqua')
+    return m
 
 
 # -------- Algo de Christofides ---------
@@ -57,16 +74,40 @@ def cristo_algo(data):
     # --- Minimum Weight Perfect Matching du ous-graphe ---
     matching = nx.algorithms.matching.min_weight_matching(odd_subgraph, weight="weight")
 
+    # --- Fusion MST + matching ---
+    multigraph = nx.MultiGraph(mst)
+    multigraph.add_edges_from(matching)
+
+    # --- Trouver un cycle eulérien ---
+    eulerian_circuit = list(nx.eulerian_circuit(multigraph))
+
+    # --- Extraire la tournée finale (Hamiltonienne) ---
+    visited = set()
+    tour = []
+    for u, v in eulerian_circuit:
+        if u not in visited:
+            tour.append(u)
+            visited.add(u)
+    tour.append(tour[0])  # retour au point de départ
+
+    # --- Calcul du kilométrage total ---
+    total_distance = 0
+    for i in range(len(tour) - 1):
+        total_distance += G[tour[i]][tour[i+1]]["weight"]
+
+    print("Tournée :", " → ".join(tour))
+    print(f"Kilométrage total : {total_distance:.2f} km")
+
     # --- Print le résultat ---
     print("Sommets impairs :", odd_nodes)
     print("\nAppariements du MWPM :")
     for u, v in matching:
         print(f"{u} — {v} : {G[u][v]['weight']:.2f} km")
-
-    # --- Visualisation MST + MWPM ---
-    import matplotlib.pyplot as plt
-
+    
+            
+    # --- Positions des villes ---
     pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
+
 
     # g_data = G, mst, matching, odd_nodes, pos
     g_data = {
@@ -75,41 +116,36 @@ def cristo_algo(data):
         "matching": matching,
         "odd_nodes": odd_nodes,
         "even_nodes": even_nodes,
-        "pos": pos
+        "pos": pos,
+        "tour": tour,
+        "total_distance": total_distance
     }
     return g_data
+
+
 
 # --- Affichage avec fond de carte ---
 def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_color='whitesmoke', label=''):
 
+    # Récupère le retours de cristo_algo()
     G = g_data["G"]
     mst = g_data["mst"]
     matching = g_data["matching"]
     odd_nodes = g_data["odd_nodes"]
     even_nodes = g_data["even_nodes"]
     pos = g_data["pos"]
+    total_distance = g_data["total_distance"]
 
     plt.figure(figsize=(12, 10))
 
     # --- Création de la carte de fond ---
-    m = Basemap(
-        projection='merc',
-        llcrnrlon=min(row[0] for row in pos.values()) - 1,
-        llcrnrlat=min(row[1] for row in pos.values()) - 1,
-        urcrnrlon=max(row[0] for row in pos.values()) + 1,
-        urcrnrlat=max(row[1] for row in pos.values()) + 1,
-        resolution='i'
-    )
-    m.drawcoastlines()
-    m.drawcountries()
-    m.fillcontinents(color=bg_color, lake_color='aqua')
-    m.drawmapboundary(fill_color='aqua')
+    m = basemap(pos, bg_color=bg_color)
 
     # --- Convertir positions lat/lon en coordonnées projetées ---
     x, y = m([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
     projected_pos = {n: (x_i, y_i) for n, x_i, y_i in zip(G.nodes(), x, y)}
 
-    # --- Sommets ---
+    # --- Sommets pairs---
     nx.draw_networkx_nodes(
         G, projected_pos,
         nodelist=even_nodes,
@@ -117,6 +153,8 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
         node_size=250,
         label='Sommets pairs'
     )
+
+   # --- Sommets impairs---
     nx.draw_networkx_nodes(
         G, projected_pos,
         nodelist=odd_nodes,
@@ -144,12 +182,12 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
 
 
     plt.legend(loc='upper left', fontsize=9, frameon=True, fancybox=True, shadow=True)
-    plt.title(f"Algorithme de Christofides - étape {label}", fontsize=12, fontweight='bold')
+    plt.title(f"Algorithme de Christofides - {label}\nDistance totale : {total_distance:.2f} km", fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.show()
 
 # --- Affichage séquentielle pour visualiser étape par étape ---
-def crist_steps(g_data):
+def cristo_steps(g_data):
     
     steps = [
         ("Graphe complet", True, False, False),
