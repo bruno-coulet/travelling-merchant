@@ -11,10 +11,14 @@ from utils import cristo_algo, cristo_plot
 # ================================================
 
 
-POP_SIZE = 2
-GENRATIONS = 4
+
+# ----- Parametres de l'algorithme genetique ---------
+POP_SIZE = 10
+GENERATIONS = 4
 MUTATION_RATE = 0.1       # Taux de mutation 10%
 ELITE_SIZE = 3            # 3 meilleurs preserves
+# ----------------------------------------------------
+
 
 
 
@@ -23,14 +27,14 @@ data = pd.read_csv("data/villes.csv")
 # --------------------------
 
 
-# ----- Execution de l'algorithme genetique  ------
+# ----- Algorithme genetique  ------
 print("\n" + "="*50)
 print("TEST DE L'ALGORITHME GENETIQUE")
 print("="*50)
 result_genetic = genetic_tsp(
     data,
     pop_size=POP_SIZE,
-    generations=GENRATIONS,
+    generations=GENERATIONS,
     mutation_rate=MUTATION_RATE,
     elite_size=ELITE_SIZE,
     verbose=True            # Afficher les progres
@@ -38,11 +42,11 @@ result_genetic = genetic_tsp(
 
 # Afficher le tour trouve
 print("\n" + "="*50)
-print(f"RESULTAT : {result_genetic['best_distance']:.2f} km")
+print(f"RESULTAT pour population size = {POP_SIZE} generations = {GENERATIONS} : {result_genetic['best_distance']:.2f} km")
 print("="*50)
 
 # Visualisation du tour
-genetic_plot(result_genetic, bg_color='lightblue', show_graph=False)
+genetic_plot(result_genetic, bg_color='lightblue', show_graph=False, pop_size=POP_SIZE, generations=GENERATIONS)
 
 # Visualisation de la convergence
 plot_genetic_convergence(result_genetic['history'])

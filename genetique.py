@@ -4,8 +4,8 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
-from utils import haversine
-
+from utils import haversine, basemap
+# from main import POP_SIZE, GENERATIONS
 
 # =======  Algorithme Genetique pour le TSP =======
 #
@@ -209,7 +209,7 @@ def genetic_tsp(data, pop_size=100, generations=500, mutation_rate=0.1, elite_si
     best_ever_distance = float('inf')
 
     if verbose:
-        print("\n=== Algorithme Genetique - Demarrage ===")
+        print("\n=== Algorithme Genetique - Démarrage ===")
         print(f"Population: {pop_size}, Generations: {generations}, Mutation: {mutation_rate}")
 
     for generation in range(generations):
@@ -273,11 +273,13 @@ def genetic_tsp(data, pop_size=100, generations=500, mutation_rate=0.1, elite_si
         "history": {
             "best": best_distance_history,
             "avg": avg_distance_history
-        }
+        },
+        "pop_size": pop_size,
+        "generations": generations
     }
 
 
-def genetic_plot(result, bg_color='lightblue', show_graph=True):
+def genetic_plot(result, bg_color='lightblue', show_graph=True, pop_size=None, generations=None):
     """
     Affiche le meilleur tour trouve par l'algorithme genetique sur une carte.
 
@@ -294,18 +296,7 @@ def genetic_plot(result, bg_color='lightblue', show_graph=True):
     plt.figure(figsize=(12, 10))
 
     # --- Creation de la carte de fond ---
-    m = Basemap(
-        projection='merc',
-        llcrnrlon=min(coord[0] for coord in pos.values()) - 1,
-        llcrnrlat=min(coord[1] for coord in pos.values()) - 1,
-        urcrnrlon=max(coord[0] for coord in pos.values()) + 1,
-        urcrnrlat=max(coord[1] for coord in pos.values()) + 1,
-        resolution='i'
-    )
-    m.drawcoastlines()
-    m.drawcountries()
-    m.fillcontinents(color=bg_color, lake_color='aqua')
-    m.drawmapboundary(fill_color='aqua')
+    m = basemap(pos, bg_color='whitesmoke')
 
     # --- Convertir positions lat/lon en coordonnees projetees ---
     x, y = m([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
@@ -318,7 +309,7 @@ def genetic_plot(result, bg_color='lightblue', show_graph=True):
     # --- Dessiner le tour ---
     tour_edges = [(best_tour[i], best_tour[(i + 1) % len(best_tour)]) for i in range(len(best_tour))]
     nx.draw_networkx_edges(G, projected_pos, edgelist=tour_edges,
-                          edge_color='blue', width=3, alpha=0.8, label='Tour genetique')
+                          edge_color='blue', width=3, alpha=0.8, label=f'Tour genetique')
 
     # --- Sommets ---
     nx.draw_networkx_nodes(G, projected_pos, node_color='red', node_size=250)
@@ -326,9 +317,22 @@ def genetic_plot(result, bg_color='lightblue', show_graph=True):
     # --- Labels ---
     nx.draw_networkx_labels(G, projected_pos, font_size=8, font_color='black', font_weight='bold')
 
-    plt.legend(loc='upper left', fontsize=10, frameon=True, fancybox=True, shadow=True)
-    plt.title(f"Algorithme Genetique - TSP\nDistance totale: {best_distance:.2f} km",
-              fontsize=12, fontweight='bold')
+    plt.legend(loc='upper right', fontsize=10, frameon=True, fancybox=True, shadow=True)
+
+    plt.title(f"Algorithme Genetique", fontsize=12, fontweight='bold')
+    
+    plt.text(0.95, 0.85,
+         f"Population Size : {pop_size}\n"
+         f"Generations : {generations}\n"
+         f"Distance totale : {best_distance:.2f} km",
+         transform=plt.gca().transAxes,
+         ha='right', va='top',
+         multialignment='left',       # 👈 corrige l’alignement des lignes internes
+         color='white',
+         bbox=dict(boxstyle='round,pad=0.4',
+                   ec='none', facecolor='#1E90FF', alpha=0.8),
+         fontsize=12)
+    
     plt.tight_layout()
     plt.show()
 
