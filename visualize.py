@@ -74,8 +74,17 @@ def compare_plot(data, genetic_params=None):
     nx.draw_networkx_nodes(G1, projected_pos, node_color='orange', node_size=200, ax=ax1)
     nx.draw_networkx_labels(G1, projected_pos, font_size=7, font_color='black', font_weight='bold', ax=ax1)
 
-    ax1.set_title(f"Christofides\nDistance: {result_cristo['distance']:.2f} km",
-                 fontsize=12, fontweight='bold', color='green')
+    ax1.set_title(f"Christofides", fontsize=12, fontweight='bold', color='green')
+    
+        # ---- Infos sur la population et le nombre de générations -----------
+    plt.text(0.95, 0.97,
+         f"Distance totale : {result_cristo['distance']:.2f} km",
+         transform=plt.gca().transAxes,
+         ha='right', va='top',
+         color='white',
+         bbox=dict(boxstyle='round,pad=0.4',
+                   ec='none', facecolor='green', alpha=0.9),
+         fontsize=12)
 
     # === GÉNÉTIQUE ===
     ax2 = fig.add_subplot(122)
@@ -103,9 +112,21 @@ def compare_plot(data, genetic_params=None):
     nx.draw_networkx_nodes(G2, projected_pos2, node_color='red', node_size=200, ax=ax2)
     nx.draw_networkx_labels(G2, projected_pos2, font_size=7, font_color='black', font_weight='bold', ax=ax2)
 
-    params_str = f"pop={genetic_params['pop_size']}, gen={genetic_params['generations']}"
-    ax2.set_title(f"Algorithme Génétique ({params_str})\nDistance: {result_genetic['best_distance']:.2f} km",
-                 fontsize=12, fontweight='bold', color='blue')
+    ax2.set_title(f"Algorithme Génétique",fontsize=12, fontweight='bold', color='blue')
+    
+    # ---- Infos sur la population et le nombre de générations -----------
+    plt.text(0.95, 0.97,
+         f"Population Size : {genetic_params['pop_size']}\n"
+         f"Generations : {genetic_params['generations']}\n"
+         f"Distance totale : {result_genetic['best_distance']:.2f} km",
+         transform=plt.gca().transAxes,
+         ha='right', va='top',
+         multialignment='left',       # 👈 corrige l’alignement des lignes internes
+         color='white',
+         bbox=dict(boxstyle='round,pad=0.4',
+                   ec='none', facecolor='#1E90FF', alpha=0.9),
+         fontsize=12)
+
 
     # --- Comparaison ---
     diff = result_genetic['best_distance'] - result_cristo['distance']
@@ -113,6 +134,7 @@ def compare_plot(data, genetic_params=None):
 
     fig.suptitle(f"Comparaison TSP - 20 villes françaises - différence: {diff:+.2f} km ({diff_percent:+.2f}%)",
                 fontsize=14, fontweight='bold')
+    
 
     # plt.tight_layout()
     plt.show()
