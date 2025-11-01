@@ -319,8 +319,9 @@ def genetic_plot(result, bg_color='lightblue', show_graph=True, pop_size=None, g
 
     plt.legend(loc='upper right', fontsize=10, frameon=True, fancybox=True, shadow=True)
 
-    plt.title(f"Algorithme Genetique", fontsize=12, fontweight='bold')
+    plt.title
     
+    # ---- Infos sur la population et le nombre de générations -----------
     plt.text(0.95, 0.85,
          f"Population Size : {pop_size}\n"
          f"Generations : {generations}\n"
