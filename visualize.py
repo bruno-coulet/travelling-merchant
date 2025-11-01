@@ -76,7 +76,7 @@ def compare_plot(data, genetic_params=None):
 
     ax1.set_title(f"Christofides", fontsize=12, fontweight='bold', color='green')
     
-        # ---- Infos sur la population et le nombre de générations -----------
+        # ---- Infos km parcourus. -----------
     plt.text(0.95, 0.97,
          f"Distance totale : {result_cristo['distance']:.2f} km",
          transform=plt.gca().transAxes,
