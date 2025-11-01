@@ -6,7 +6,8 @@ import seaborn as sns
 from mpl_toolkits.basemap import Basemap
 
 # =======  Liste de fonctions utilisées dans le main.py =======
-# 
+#
+# crée une palette de couleurs personnalisée
 # haversine()................ calcule la distance entre 2 point géographiques
 # calculate_tour_distance().. calcule la distance totale d'un tour
 # basemap().................. crée une carte de fond
@@ -15,6 +16,24 @@ from mpl_toolkits.basemap import Basemap
 # cristo_steps()............. décompose et affiche l'algorithme de Christofides sur le fond de carte
 #
 # =============================================================
+
+
+
+
+# ------  palette de couleurs personnalisée  ------
+# Sélectionne des couleurs
+land_color = sns.color_palette("OrRd", 10)[0]
+odd_color = sns.color_palette("OrRd", 10)[6]
+cristofides_color = sns.color_palette("Greens", 10)[6]
+sea_color = sns.color_palette("Blues", 10)[1]
+genetic_color = sns.color_palette("Blues", 10)[8]
+even_color = sns.color_palette("Oranges", 10)[6]
+# Crée une palette personnalisée avec ces couleurs
+ma_palette = [land_color, sea_color, odd_color, genetic_color, cristofides_color, even_color]
+# Affiche la plalette personnalisée
+# sns.palplot(ma_palette)
+
+
 
 
 
@@ -30,6 +49,9 @@ def haversine(lat1, lon1, lat2, lon2):
     
     return R * c  # distance en km
 
+
+
+# --- Distance Totale ---
 def calculate_tour_distance(tour, data):
     """
     Calcule la distance totale d'un tour (chemin hamiltonien ferme).
@@ -54,19 +76,9 @@ def calculate_tour_distance(tour, data):
 
     return total_distance
 
+
 # --- Création de la carte de fond ---
-
-# Crée la palette et la stocke dans une variable
-palette = sns.color_palette("Paired", 15)
-
-# Affiche la palette
-# sns.palplot(palette)
-
-# Sélectionne la première couleur
-fill_color = palette[0]
-bg_color = palette[6]
-
-def basemap(pos, bg_color=palette[6]):
+def basemap(pos):
     lons = [coord[0] for coord in pos.values()]
     lats = [coord[1] for coord in pos.values()]
     m = Basemap(
@@ -79,9 +91,11 @@ def basemap(pos, bg_color=palette[6]):
     )
     m.drawcoastlines()
     m.drawcountries()
-    m.fillcontinents(color=bg_color, lake_color=palette[0])
-    m.drawmapboundary(fill_color=palette[0])
+    m.fillcontinents(color=land_color, lake_color=sea_color)
+    m.drawmapboundary(fill_color=sea_color)
     return m
+
+
 
 # -------- Algo de Christofides ---------
 
@@ -117,13 +131,6 @@ def cristo_algo(data, verbose=False):
     eulerian_circuit = list(nx.eulerian_circuit(multigraph))
 
     # --- Extraire la tournée finale (Hamiltonienne) ---
-    # visited = set()
-    # tour = []
-    # for u, v in eulerian_circuit:
-    #     if u not in visited:
-    #         tour.append(u)
-    #         visited.add(u)
-    # tour.append(tour[0])  # retour au point de départ
     visited = []
     for u, v in eulerian_circuit:
         if u not in visited:
@@ -131,13 +138,10 @@ def cristo_algo(data, verbose=False):
     # On ferme le cycle en revenant au point de départ
     tour = visited + [visited[0]]
 
-
-
     distance = calculate_tour_distance(tour, data)
             
     # --- Positions des villes ---
     pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
-
 
     # g_data = G, mst, matching, odd_nodes, pos
     g_data = {
@@ -152,8 +156,11 @@ def cristo_algo(data, verbose=False):
     }
     return g_data
 
+
+
+
 # --- Affichage avec fond de carte ---
-def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_color='whitesmoke', label=''):
+def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_color=ma_palette[0], label=''):
 
     # Récupère le retours de cristo_algo()
     G = g_data["G"]
@@ -167,8 +174,7 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     plt.figure(figsize=(12, 10))
 
     # --- Création de la carte de fond ---
-    m = basemap(pos, bg_color=bg_color)
-
+    m = basemap(pos)
     # --- Convertir positions lat/lon en coordonnées projetées ---
     x, y = m([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
     projected_pos = {n: (x_i, y_i) for n, x_i, y_i in zip(G.nodes(), x, y)}
@@ -177,7 +183,7 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     nx.draw_networkx_nodes(
         G, projected_pos,
         nodelist=even_nodes,
-        node_color='orange',
+        node_color=even_color,
         node_size=250,
         label='Sommets pairs'
     )
@@ -186,7 +192,7 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     nx.draw_networkx_nodes(
         G, projected_pos,
         nodelist=odd_nodes,
-        node_color='red',
+        node_color=odd_color,
         node_size=300,
         label='Sommets impairs'
     )
@@ -195,10 +201,10 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     if show_full:
         nx.draw_networkx_edges(G, projected_pos, edge_color='gray', width=2, alpha=0.5, label='Graphe complet')
     if show_mst:
-        nx.draw_networkx_edges(mst, projected_pos, edge_color='green', width=3, label='MST')
+        nx.draw_networkx_edges(mst, projected_pos, edge_color=cristofides_color, width=3, label='MST')
     if show_matching:
         nx.draw_networkx_edges(G, projected_pos, edgelist=list(matching),
-                               edge_color='red', style='dashed', width=2, label='MWPM')
+                               edge_color=odd_color, style='dashed', width=2, label='MWPM')
 
     # --- Labels pour les sommets impairs ---
     odd_labels = {node: node for node in odd_nodes}
@@ -213,6 +219,8 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     plt.title(f"Algorithme de Christofides - {label}\nDistance totale : {distance:.2f} km", fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.show()
+
+
 
 # --- Affichage séquentielle pour visualiser étape par étape ---
 def cristo_steps(g_data):

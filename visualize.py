@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
+import seaborn as sns
 from mpl_toolkits.basemap import Basemap
 from utils import cristo_algo, basemap
 from genetique import genetic_tsp
@@ -8,6 +9,8 @@ from genetique import genetic_tsp
 
 # ========= Visualisation et Comparaison des Tours =========
 #
+# CONSTANTES pour l'algorithme génétique
+# crée une palette de couleurs personnalisée
 # Affiche les tours trouvés par différents algorithmes
 # Permet de comparer visuellement les résultats
 #
@@ -17,6 +20,21 @@ POPULATION = 5
 GENERATIONS = 5
 MUTATION_RATE = 0.6
 ELITE_SIZE = 2
+
+
+# ------  palette de couleurs personnalisée  ------
+# Sélectionne des couleurs
+land_color = sns.color_palette("OrRd", 10)[0]
+odd_color = sns.color_palette("OrRd", 10)[6]
+cristofides_color = sns.color_palette("Greens", 10)[6]
+sea_color = sns.color_palette("Blues", 10)[1]
+genetic_color = sns.color_palette("Blues", 10)[8]
+even_color = sns.color_palette("Oranges", 10)[6]
+# Crée une palette personnalisée avec ces couleurs
+ma_palette = [land_color, sea_color, odd_color, genetic_color, cristofides_color, even_color]
+# Affiche la plalette personnalisée
+# sns.palplot(ma_palette)
+
 
 
 def compare_plot(data, genetic_params=None):
@@ -61,8 +79,7 @@ def compare_plot(data, genetic_params=None):
     tour_cristo = result_cristo["tour"]
     tour_edges_cristo = [(tour_cristo[i], tour_cristo[i + 1]) for i in range(len(tour_cristo) - 1)]
     if tour_cristo[0] != tour_cristo[-1]:
-        tour_edges_cristo.append((tour_cristo[-1], tour_cristo[0]))  # fermer le tour si nécessaire
-
+        tour_edges_cristo.append((tour_cristo[-1], tour_cristo[0]))
     # Supprimer les boucles (ville → elle-même)
     tour_edges_cristo = [(u, v) for u, v in tour_edges_cristo if u != v]
 
@@ -76,7 +93,7 @@ def compare_plot(data, genetic_params=None):
 
     ax1.set_title(f"Christofides", fontsize=12, fontweight='bold', color='green')
     
-        # ---- Infos km parcourus. -----------
+    # ---- Infos km parcourus. -----------
     plt.text(0.95, 0.97,
          f"Distance totale : {result_cristo['distance']:.2f} km",
          transform=plt.gca().transAxes,
@@ -108,11 +125,11 @@ def compare_plot(data, genetic_params=None):
         G2.add_edge(u, v)
 
     nx.draw_networkx_edges(G2, projected_pos2, edgelist=tour_edges_genetic,
-                          edge_color='blue', width=3, alpha=0.8, ax=ax2)
-    nx.draw_networkx_nodes(G2, projected_pos2, node_color='red', node_size=200, ax=ax2)
+                          edge_color=genetic_color, width=3, alpha=0.8, ax=ax2)
+    nx.draw_networkx_nodes(G2, projected_pos2, node_color=odd_color, node_size=200, ax=ax2)
     nx.draw_networkx_labels(G2, projected_pos2, font_size=7, font_color='black', font_weight='bold', ax=ax2)
 
-    ax2.set_title(f"Algorithme Génétique",fontsize=12, fontweight='bold', color='blue')
+    ax2.set_title(f"Algorithme Génétique",fontsize=12, fontweight='bold', color=genetic_color)
     
     # ---- Infos sur la population et le nombre de générations -----------
     plt.text(0.95, 0.97,
@@ -124,7 +141,7 @@ def compare_plot(data, genetic_params=None):
          multialignment='left',       # 👈 corrige l’alignement des lignes internes
          color='white',
          bbox=dict(boxstyle='round,pad=0.4',
-                   ec='none', facecolor='#1E90FF', alpha=0.9),
+                   ec='none', facecolor=genetic_color, alpha=0.9),
          fontsize=12)
 
 
