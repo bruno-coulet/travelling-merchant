@@ -13,10 +13,10 @@ from genetique import genetic_tsp
 #
 # ===========================================================
 
-POPULATION = 150
-GENERATIONS = 75
+POPULATION = 5
+GENERATIONS = 5
 MUTATION_RATE = 0.6
-ELITE_SIZE = 10
+ELITE_SIZE = 2
 
 
 def compare_plot(data, genetic_params=None):
@@ -50,7 +50,7 @@ def compare_plot(data, genetic_params=None):
     plt.sca(ax1)
 
     pos = result_cristo["pos"]
-    m1 = basemap(pos, bg_color='lightyellow')
+    m1 = basemap(pos)
     
 
 
@@ -82,7 +82,7 @@ def compare_plot(data, genetic_params=None):
     plt.sca(ax2)
 
     pos2 = result_genetic["pos"]
-    m2 = basemap(pos2, bg_color='lightyellow')
+    m2 = basemap(pos2)
 
     x2, y2 = m2([coord[0] for coord in pos2.values()], [coord[1] for coord in pos2.values()])
     projected_pos2 = {n: (x_i, y_i) for n, x_i, y_i in zip(pos2.keys(), x2, y2)}

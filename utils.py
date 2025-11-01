@@ -2,6 +2,7 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 import math
+import seaborn as sns
 from mpl_toolkits.basemap import Basemap
 
 # =======  Liste de fonctions utilisées dans le main.py =======
@@ -54,7 +55,18 @@ def calculate_tour_distance(tour, data):
     return total_distance
 
 # --- Création de la carte de fond ---
-def basemap(pos, bg_color='whitesmoke'):
+
+# Crée la palette et la stocke dans une variable
+palette = sns.color_palette("Paired", 15)
+
+# Affiche la palette
+# sns.palplot(palette)
+
+# Sélectionne la première couleur
+fill_color = palette[0]
+bg_color = palette[6]
+
+def basemap(pos, bg_color=palette[6]):
     lons = [coord[0] for coord in pos.values()]
     lats = [coord[1] for coord in pos.values()]
     m = Basemap(
@@ -67,8 +79,8 @@ def basemap(pos, bg_color='whitesmoke'):
     )
     m.drawcoastlines()
     m.drawcountries()
-    m.fillcontinents(color=bg_color, lake_color='aqua')
-    m.drawmapboundary(fill_color='aqua')
+    m.fillcontinents(color=bg_color, lake_color=palette[0])
+    m.drawmapboundary(fill_color=palette[0])
     return m
 
 # -------- Algo de Christofides ---------
