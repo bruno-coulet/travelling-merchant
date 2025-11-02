@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import networkx as nx
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
@@ -13,6 +14,20 @@ from utils import haversine, basemap
 # avec selection par tournoi, croisement OX et mutation par swap
 #
 # =================================================
+
+
+# ------  palette de couleurs personnalisée  ------
+# Sélectionne des couleurs
+land_color = sns.color_palette("OrRd", 10)[0]
+odd_color = sns.color_palette("OrRd", 10)[6]
+cristofides_color = sns.color_palette("Greens", 10)[6]
+sea_color = sns.color_palette("Blues", 10)[1]
+genetic_color = sns.color_palette("Blues", 10)[8]
+even_color = sns.color_palette("Oranges", 10)[6]
+# Crée une palette personnalisée avec ces couleurs
+ma_palette = [land_color, sea_color, odd_color, genetic_color, cristofides_color, even_color]
+# Affiche la plalette personnalisée
+# sns.palplot(ma_palette)
 
 
 def calculate_tour_distance(tour, data):
@@ -296,7 +311,7 @@ def genetic_plot(result, bg_color='lightblue', show_graph=True, pop_size=None, g
     plt.figure(figsize=(12, 10))
 
     # --- Creation de la carte de fond ---
-    m = basemap(pos, bg_color='whitesmoke')
+    m = basemap(pos)
 
     # --- Convertir positions lat/lon en coordonnees projetees ---
     x, y = m([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
@@ -309,7 +324,7 @@ def genetic_plot(result, bg_color='lightblue', show_graph=True, pop_size=None, g
     # --- Dessiner le tour ---
     tour_edges = [(best_tour[i], best_tour[(i + 1) % len(best_tour)]) for i in range(len(best_tour))]
     nx.draw_networkx_edges(G, projected_pos, edgelist=tour_edges,
-                          edge_color='blue', width=3, alpha=0.8, label=f'Tour genetique')
+                          edge_color=genetic_color, width=3, alpha=0.8, label=f'Tour genetique')
 
     # --- Sommets ---
     nx.draw_networkx_nodes(G, projected_pos, node_color='red', node_size=250)
@@ -331,7 +346,7 @@ def genetic_plot(result, bg_color='lightblue', show_graph=True, pop_size=None, g
          multialignment='left',       # 👈 corrige l’alignement des lignes internes
          color='white',
          bbox=dict(boxstyle='round,pad=0.4',
-                   ec='none', facecolor='#1E90FF', alpha=0.8),
+                   ec='none', facecolor=genetic_color, alpha=0.8),
          fontsize=12)
     
     plt.tight_layout()
@@ -346,7 +361,7 @@ def plot_genetic_convergence(history):
         history: Dictionnaire avec keys 'best' et 'avg' (historique des distances)
     """
     plt.figure(figsize=(10, 6))
-    plt.plot(history["best"], label="Meilleure distance", color='blue', linewidth=2)
+    plt.plot(history["best"], label="Meilleure distance", color=genetic_color, linewidth=2)
     plt.plot(history["avg"], label="Distance moyenne", color='orange', linewidth=1, alpha=0.7)
     plt.xlabel("Generation", fontsize=12)
     plt.ylabel("Distance (km)", fontsize=12)

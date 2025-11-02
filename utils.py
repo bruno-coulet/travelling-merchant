@@ -2,6 +2,7 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 import math
+import seaborn as sns
 from mpl_toolkits.basemap import Basemap
 
 # =======  Liste de fonctions utilisées dans le main.py =======
@@ -13,6 +14,20 @@ from mpl_toolkits.basemap import Basemap
 # cristo_step()........ décompose et affiche l'algorithme de Christofides sur le fond de carte
 #
 # =============================================================
+
+
+# ------  palette de couleurs personnalisée  ------
+# Sélectionne des couleurs
+land_color = sns.color_palette("OrRd", 10)[0]
+odd_color = sns.color_palette("OrRd", 10)[6]
+cristofides_color = sns.color_palette("Greens", 10)[6]
+sea_color = sns.color_palette("Blues", 10)[1]
+genetic_color = sns.color_palette("Blues", 10)[8]
+even_color = sns.color_palette("Oranges", 10)[6]
+# Crée une palette personnalisée avec ces couleurs
+ma_palette = [land_color, sea_color, odd_color, genetic_color, cristofides_color, even_color]
+# Affiche la plalette personnalisée
+# sns.palplot(ma_palette)
 
 
 
@@ -31,7 +46,7 @@ def haversine(lat1, lon1, lat2, lon2):
 
 
 # --- Création de la carte de fond ---
-def basemap(pos, bg_color='whitesmoke'):
+def basemap(pos):
     lons = [coord[0] for coord in pos.values()]
     lats = [coord[1] for coord in pos.values()]
     m = Basemap(
@@ -44,8 +59,8 @@ def basemap(pos, bg_color='whitesmoke'):
     )
     m.drawcoastlines()
     m.drawcountries()
-    m.fillcontinents(color=bg_color, lake_color='aqua')
-    m.drawmapboundary(fill_color='aqua')
+    m.fillcontinents(color=land_color, lake_color=sea_color)
+    m.drawmapboundary(fill_color=sea_color)
     return m
 
 # -------- Algo de Christofides ---------
@@ -124,7 +139,7 @@ def cristo_algo(data):
 
 
 # --- Affichage avec fond de carte ---
-def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_color='whitesmoke', label=''):
+def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, label=''):
 
     # Récupère le retours de cristo_algo()
     G = g_data["G"]
@@ -138,7 +153,7 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     plt.figure(figsize=(12, 10))
 
     # --- Création de la carte de fond ---
-    m = basemap(pos, bg_color=bg_color)
+    m = basemap(pos)
 
     # --- Convertir positions lat/lon en coordonnées projetées ---
     x, y = m([coord[0] for coord in pos.values()], [coord[1] for coord in pos.values()])
@@ -148,7 +163,7 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     nx.draw_networkx_nodes(
         G, projected_pos,
         nodelist=even_nodes,
-        node_color='orange',
+        node_color=cristofides_color,
         node_size=250,
         label='Sommets pairs'
     )
@@ -157,7 +172,7 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     nx.draw_networkx_nodes(
         G, projected_pos,
         nodelist=odd_nodes,
-        node_color='red',
+        node_color=odd_color,
         node_size=300,
         label='Sommets impairs'
     )
@@ -166,10 +181,10 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     if show_full:
         nx.draw_networkx_edges(G, projected_pos, edge_color='gray', width=2, alpha=0.5, label='Graphe complet')
     if show_mst:
-        nx.draw_networkx_edges(mst, projected_pos, edge_color='green', width=3, label='MST')
+        nx.draw_networkx_edges(mst, projected_pos, edge_color=cristofides_color, width=3, label='MST')
     if show_matching:
         nx.draw_networkx_edges(G, projected_pos, edgelist=list(matching),
-                               edge_color='red', style='dashed', width=2, label='MWPM')
+                               edge_color=odd_color, style='dashed', width=2, label='MWPM')
 
     # --- Labels pour les sommets impairs ---
     odd_labels = {node: node for node in odd_nodes}
