@@ -5,7 +5,7 @@ import seaborn as sns
 import networkx as nx
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
-from utils import haversine, basemap
+from utils import haversine, calculate_tour_distance, basemap
 # from main import POP_SIZE, GENERATIONS
 
 # =======  Algorithme Genetique pour le TSP =======
