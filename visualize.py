@@ -95,7 +95,7 @@ def compare_plot(data, genetic_params=None):
     
     # ---- Infos km parcourus. -----------
     plt.text(0.95, 0.97,
-         f"Distance totale : {result_cristo['distance']:.2f} km",
+         f"Distance totale : {result_cristo['total_distance']:.2f} km",
          transform=plt.gca().transAxes,
          ha='right', va='top',
          color='white',
@@ -146,8 +146,8 @@ def compare_plot(data, genetic_params=None):
 
 
     # --- Comparaison ---
-    diff = result_genetic['best_distance'] - result_cristo['distance']
-    diff_percent = (diff / result_cristo['distance']) * 100
+    diff = result_genetic['best_distance'] - result_cristo['total_distance']
+    diff_percent = (diff / result_cristo['total_distance']) * 100
 
     fig.suptitle(f"Comparaison TSP - 20 villes françaises - différence: {diff:+.2f} km ({diff_percent:+.2f}%)",
                 fontsize=14, fontweight='bold')
@@ -160,7 +160,7 @@ def compare_plot(data, genetic_params=None):
     print("\n" + "="*70)
     print("RÉSUMÉ DE LA COMPARAISON")
     print("="*70)
-    print(f"Christofides  : {result_cristo['distance']:.2f} km")
+    print(f"Christofides  : {result_cristo['total_distance']:.2f} km")
     print(f"Génétique     : {result_genetic['best_distance']:.2f} km")
     print(f"Différence    : {diff:+.2f} km ({diff_percent:+.2f}%)")
     if diff < 0:

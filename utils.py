@@ -99,7 +99,6 @@ def basemap(pos):
 
 # -------- Algo de Christofides ---------
 
-# Version modulaire cristo algorithme
 def cristo_algo(data, verbose=False):
     # --- Graphe complet pondéré ---
     G = nx.Graph()
@@ -192,9 +191,7 @@ def cristo_algo(data, verbose=False):
     return g_data
 
 
-
-
-# --- Affichage avec fond de carte ---
+# ------- Affichage avec fond de carte -------
 def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_color=ma_palette[0], label=''):
 
     # Récupère le retours de cristo_algo()
@@ -224,8 +221,6 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     )
 
    # --- Sommets impairs---
-
-   # --- Sommets impairs---
     nx.draw_networkx_nodes(
         G, projected_pos,
         nodelist=odd_nodes,
@@ -239,10 +234,8 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
         nx.draw_networkx_edges(G, projected_pos, edge_color='gray', width=2, alpha=0.5, label='Graphe complet')
     if show_mst:
         nx.draw_networkx_edges(mst, projected_pos, edge_color=cristofides_color, width=3, label='MST')
-        nx.draw_networkx_edges(mst, projected_pos, edge_color=cristofides_color, width=3, label='MST')
     if show_matching:
         nx.draw_networkx_edges(G, projected_pos, edgelist=list(matching),
-                               edge_color=odd_color, style='dashed', width=2, label='MWPM')
                                edge_color=odd_color, style='dashed', width=2, label='MWPM')
 
     # --- Labels pour les sommets impairs ---
@@ -253,21 +246,14 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     even_labels = {node: node for node in even_nodes}
     nx.draw_networkx_labels(G, projected_pos, labels=even_labels, font_size=9, font_color='black', font_weight='bold')
 
-    
-    # --- Labels pour les sommets pairs ---
-    even_labels = {node: node for node in even_nodes}
-    nx.draw_networkx_labels(G, projected_pos, labels=even_labels, font_size=9, font_color='black', font_weight='bold')
-
-
     plt.legend(loc='upper left', fontsize=9, frameon=True, fancybox=True, shadow=True)
-    plt.title(f"Algorithme de Christofides - {label}\nDistance totale : {distance:.2f} km", fontsize=12, fontweight='bold')
+    plt.title(f"Algorithme de Christofides - {label}\nDistance totale : {total_distance:.2f} km", fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.show()
 
 
 
 # --- Affichage séquentielle pour visualiser étape par étape ---
-def cristo_steps(g_data):
 def cristo_steps(g_data):
     
     steps = [

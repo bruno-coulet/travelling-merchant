@@ -1,6 +1,6 @@
 import pandas as pd
 # from utils import haversine, plot_graph_map, plot_graph, cristo_algo, cristo_plot, crist_steps
-from utils import cristo_algo, cristo_plot, cristo_steps
+from utils import cristo_algo, cristo_steps
 from genetique import *
 
 # ============ fichier principal  ===============
