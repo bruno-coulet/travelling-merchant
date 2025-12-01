@@ -26,7 +26,9 @@ data = pd.read_csv("data/villes.csv")
 g_data = cristo_algo(data)
 # Affichage étape par étape
 cristo_steps(g_data)
+cristo_steps(g_data)
 # -----------------------------------------
+
 
 
 
