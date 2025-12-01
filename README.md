@@ -300,7 +300,8 @@ Un **graphe complet** contient toutes les arêtes possibles entre tous les somme
 
 ### **Graphe connexe**
 Un graphe est **connexe** si, pour tout couple de sommets `u` et `v`,  
-il existe un **chemin** reliant `u` à `v`.
+il existe un **chemin** reliant `u` à `v`.<br>
+Le chemin n'est pas forcément direct, mais il existe
 
 **Exemple :**  
 L’ensemble ci-dessous **n’est pas connexe** : il se compose de deux sous-graphes connexes,  
