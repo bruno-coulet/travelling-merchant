@@ -6,6 +6,8 @@ import statistics
 from datetime import datetime
 
 
+
+
 # ========= Système de Benchmark et Comparaison =========
 #
 # Mesure temps d'exécution, CPU, mémoire pour les algorithmes TSP
@@ -55,6 +57,8 @@ def measure_performance(algorithm_func, data, algo_name, min_total_wall_time=2, 
     representative_result = None
     representative_tour = None
     representative_distance = None
+    best_distance_overall = float('inf')
+    best_result_overall = None
 
     # boucle d'amortissement
     while (wall_accum < min_total_wall_time) and (iters < max_iters_cap):
@@ -166,11 +170,12 @@ def measure_performance(algorithm_func, data, algo_name, min_total_wall_time=2, 
 
         wall_accum += wall
 
-        if representative_result is None:
-            representative_result = res
-            if isinstance(res, dict):
-                representative_tour = res.get('best_tour') or res.get('tour')
-                representative_distance = res.get('best_distance') or res.get('distance')
+        if isinstance(res, dict):
+            current_distance = res.get('best_distance') or res.get('distance')
+            if current_distance is not None and current_distance < best_distance_overall:
+                best_distance_overall = current_distance
+                best_result_overall = res
+
 
     # agrégation
     iterations = iters
@@ -212,6 +217,9 @@ def measure_performance(algorithm_func, data, algo_name, min_total_wall_time=2, 
     delta_diff = round(cpu_mean - thread_total_mean, 6)
     alert_threshold = max(0.005, 0.02 * cpu_mean)
     delta_flag = abs(delta_diff) > alert_threshold
+    representative_result = best_result_overall
+    representative_distance = best_distance_overall
+    representative_tour = best_result_overall.get('best_tour') or best_result_overall.get('tour') if best_result_overall else None
 
     tour = representative_tour
     distance = representative_distance
@@ -223,10 +231,11 @@ def measure_performance(algorithm_func, data, algo_name, min_total_wall_time=2, 
         cpu_tick_median = None
         cpu_tick_samples = 0
 
+
     # metrics (compatibilité ascendante : inclure anciennes clés simples)
     metrics = {
         'algorithm': algo_name,
-        'distance_km': round(distance, 2) if distance is not None else None,
+        'distance_km': round(representative_distance, 2) if representative_distance is not None else None,
         'execution_time_s_mean': round(wall_mean, 6),
         'execution_time_s_std': round(wall_std, 6),
         'execution_time_s': round(wall_mean, 6),
@@ -286,7 +295,9 @@ def compare_algorithms(data, genetic_params_list, save_to_csv=True, csv_filename
         DataFrame avec tous les résultats
     """
     from utils import cristo_complete
-    from genetique import genetic_tsp
+    from genetique import genetic_tsp, compute_distance_matrix
+    matrix = compute_distance_matrix(data)
+
 
     print("\n" + "="*70)
     print("COMPARAISON DES ALGORITHMES TSP")
@@ -303,7 +314,7 @@ def compare_algorithms(data, genetic_params_list, save_to_csv=True, csv_filename
         verbose=False
     )
 
-    print(f"  ✓ Distance: {metrics_cristo['distance_km']} km")
+    print(f"  ✓ Meilleuresistance: {metrics_cristo['distance_km']} km")
     # Afficher temps / CPU avec précision si les mesures sont amorties
     if metrics_cristo.get('amortized'):
         print(f"  ✓ Temps (moyenne ± écart‑type) : {metrics_cristo.get('execution_time_s_mean')} ± {metrics_cristo.get('execution_time_s_std')} s — sur {metrics_cristo.get('iterations')} exécutions (seuil d'amortissement = {metrics_cristo.get('min_total_wall_time')} s)")
@@ -371,7 +382,7 @@ def compare_algorithms(data, genetic_params_list, save_to_csv=True, csv_filename
         print(f"\n[{i}/{len(genetic_params_list)+1}] Exécution Génétique - {params}...")
 
         metrics_genetic, result_genetic = measure_performance(
-            genetic_tsp,
+            lambda d, **kw: genetic_tsp(d, matrix=matrix, **kw),
             data,
             f"Genetique",
             verbose=False,

@@ -15,29 +15,24 @@ from utils import haversine
 # =================================================
 
 
-def calculate_tour_distance(tour, data):
-    """
-    Calcule la distance totale d'un tour (chemin hamiltonien ferme).
-
-    Args:
-        tour: Liste des noms de villes dans l'ordre de visite
-        data: DataFrame avec colonnes Ville, Latitude, Longitude
-
-    Returns:
-        Distance totale en km
-    """
-    total_distance = 0
-    for i in range(len(tour)):
-        city1 = tour[i]
-        city2 = tour[(i + 1) % len(tour)]  # retour e la premiere ville
-
-        # Recuperer les coordonnees
+def compute_distance_matrix(data):
+    cities = data["Ville"].tolist()
+    matrix = {}
+    for city1 in cities:
+        matrix[city1] = {}
         lat1, lon1 = data.loc[data["Ville"] == city1, ["Latitude", "Longitude"]].values[0]
-        lat2, lon2 = data.loc[data["Ville"] == city2, ["Latitude", "Longitude"]].values[0]
+        for city2 in cities:
+            if city2 == city1:
+                matrix[city1][city2] = 0
+            elif city2 in matrix and city1 in matrix[city2]:
+                matrix[city1][city2] = matrix[city2][city1]
+            else:
+                lat2, lon2 = data.loc[data["Ville"] == city2, ["Latitude", "Longitude"]].values[0]
+                matrix[city1][city2] = haversine(lat1, lon1, lat2, lon2)
+    return matrix
 
-        total_distance += haversine(lat1, lon1, lat2, lon2)
-
-    return total_distance
+def calculate_tour_distance(tour, matrix):
+    return sum(matrix[tour[i]][tour[(i + 1) % len(tour)]] for i in range(len(tour)))
 
 
 def create_initial_population(cities, pop_size):
@@ -59,18 +54,8 @@ def create_initial_population(cities, pop_size):
     return population
 
 
-def fitness(tour, data):
-    """
-    Calcule le fitness d'un tour (inverse de la distance pour maximiser).
-
-    Args:
-        tour: Liste des villes
-        data: DataFrame des villes
-
-    Returns:
-        Fitness (1 / distance)
-    """
-    distance = calculate_tour_distance(tour, data)
+def fitness(tour, matrix):
+    distance = calculate_tour_distance(tour, matrix)
     return 1 / distance if distance > 0 else 0
 
 
@@ -167,44 +152,24 @@ def inversion_mutation(tour, mutation_rate=0.1):
     return tour
 
 
-def genetic_tsp(data, pop_size=100, generations=500, mutation_rate=0.1, elite_size=5, verbose=True):
-    """
-    Algorithme genetique pour resoudre le TSP.
-
-    Args:
-        data: DataFrame avec colonnes Ville, Latitude, Longitude
-        pop_size: Taille de la population
-        generations: Nombre de generations
-        mutation_rate: Taux de mutation
-        elite_size: Nombre d'individus elites preserves
-        verbose: Afficher les progres
-
-    Returns:
-        Dictionnaire contenant:
-            - best_tour: Meilleur tour trouve
-            - best_distance: Distance du meilleur tour
-            - G: Graphe complet
-            - pos: Positions des villes
-            - history: Historique des distances par generation
-    """
+def genetic_tsp(data, pop_size=100, generations=500, mutation_rate=0.1, elite_size=5, verbose=True, matrix=None):
     cities = data["Ville"].tolist()
 
-    # Creer le graphe complet pour la visualisation
+    if matrix is None:
+        matrix = compute_distance_matrix(data)
+
     G = nx.Graph()
     for i, v1 in data.iterrows():
         for j, v2 in data.iterrows():
             if i < j:
-                dist = haversine(v1["Latitude"], v1["Longitude"], v2["Latitude"], v2["Longitude"])
+                dist = matrix[v1["Ville"]][v2["Ville"]]
                 G.add_edge(v1["Ville"], v2["Ville"], weight=dist)
 
     pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
-
-    # Population initiale
     population = create_initial_population(cities, pop_size)
 
     best_distance_history = []
     avg_distance_history = []
-
     best_ever_tour = None
     best_ever_distance = float('inf')
 
@@ -213,51 +178,36 @@ def genetic_tsp(data, pop_size=100, generations=500, mutation_rate=0.1, elite_si
         print(f"Population: {pop_size}, Generations: {generations}, Mutation: {mutation_rate}")
 
     for generation in range(generations):
-        # Calculer les fitness
-        fitnesses = [fitness(tour, data) for tour in population]
-        distances = [calculate_tour_distance(tour, data) for tour in population]
+        fitnesses = [fitness(tour, matrix) for tour in population]
+        distances = [calculate_tour_distance(tour, matrix) for tour in population]
 
-        # Meilleur de cette generation
         best_idx = distances.index(min(distances))
         best_distance = distances[best_idx]
         best_tour = population[best_idx]
 
-        # Mettre e jour le meilleur absolu
         if best_distance < best_ever_distance:
             best_ever_distance = best_distance
             best_ever_tour = best_tour.copy()
 
-        # Historique
         best_distance_history.append(best_ever_distance)
         avg_distance_history.append(sum(distances) / len(distances))
 
-        # Affichage periodique
         if verbose and (generation % 50 == 0 or generation == generations - 1):
             print(f"Generation {generation:3d} | Meilleur: {best_distance:.2f} km | "
                   f"Meilleur absolu: {best_ever_distance:.2f} km | Moy: {avg_distance_history[-1]:.2f} km")
 
-        # elitisme : garder les meilleurs
         sorted_indices = sorted(range(len(distances)), key=lambda i: distances[i])
         elite = [population[i].copy() for i in sorted_indices[:elite_size]]
-
-        # Nouvelle generation
         new_population = elite.copy()
 
         while len(new_population) < pop_size:
-            # Selection
             parent1 = tournament_selection(population, fitnesses)
             parent2 = tournament_selection(population, fitnesses)
-
-            # Croisement
             child1, child2 = order_crossover(parent1, parent2)
-
-            # Mutation
             child1 = swap_mutation(child1, mutation_rate)
             child2 = inversion_mutation(child2, mutation_rate)
-
             new_population.extend([child1, child2])
 
-        # Tronquer si necessaire
         population = new_population[:pop_size]
 
     if verbose:
@@ -275,7 +225,6 @@ def genetic_tsp(data, pop_size=100, generations=500, mutation_rate=0.1, elite_si
             "avg": avg_distance_history
         }
     }
-
 
 def genetic_plot(result, bg_color='lightblue', show_graph=True):
     """
