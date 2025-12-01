@@ -1,12 +1,11 @@
 import pandas as pd
-from genetique import genetic_tsp, genetic_plot, plot_genetic_convergence
-from utils import cristo_algo, cristo_plot
+from benchmark import compare_algorithms
 
 # ============ fichier principal  ===============
 #
-# charge le csv des villes
-# teste l'algorithme genetique
-# teste l'algorithme de Christofides
+# Charge le CSV des villes
+# Compare Christofides et Algorithme Génétique
+# Avec plusieurs configurations de paramètres
 #
 # ================================================
 
@@ -23,38 +22,30 @@ data = pd.read_csv("data/villes.csv")
 # --------------------------
 
 
-# ----- Execution de l'algorithme genetique  ------
-print("\n" + "="*50)
-print("TEST DE L'ALGORITHME GENETIQUE")
-print("="*50)
-result_genetic = genetic_tsp(
+print("\n" + "="*70)
+print("Travelling-merchant - résolution du TSP - COMPARAISON D'ALGORITHMES")
+print(f"Nombre de villes : {len(data)}")
+print("="*70)
+
+# --- Configurations de l'algorithme génétique à tester ---
+genetic_configs = [
+    {"pop_size": 5, "generations": 10, "mutation_rate": 0.1, "elite_size": 5},
+    {"pop_size": 10, "generations": 10, "mutation_rate": 0.1, "elite_size": 5},
+    {"pop_size": 12, "generations": 10, "mutation_rate": 0.1, "elite_size": 5},
+    {"pop_size": 13, "generations": 10, "mutation_rate": 0.1, "elite_size": 5},
+]
+
+# --- Lancer la comparaison ---
+results_df = compare_algorithms(
     data,
-    pop_size=POP_SIZE,
-    generations=GENRATIONS,
-    mutation_rate=MUTATION_RATE,
-    elite_size=ELITE_SIZE,
-    verbose=True            # Afficher les progres
+    genetic_configs,
+    save_to_csv=True,
+    csv_filename="results/benchmark_results.csv"
 )
 
-# Afficher le tour trouve
-print("\n" + "="*50)
-print(f"RESULTAT : {result_genetic['best_distance']:.2f} km")
-print("="*50)
-
-# Visualisation du tour
-genetic_plot(result_genetic, bg_color='lightblue', show_graph=False)
-
-# Visualisation de la convergence
-plot_genetic_convergence(result_genetic['history'])
-# -------------------------------------------------------
-
-# -------- Execution de l'algo de Christofides ---------
-print("\n" + "="*50)
-print("TEST DE L'ALGORITHME DE CHRISTOFIDES")
-print("="*50)
-
-# Exécution de l'algo 
-g_data = cristo_algo(data)
-# Affichage étape par étape
-cristo_plot(g_data)
-# ----------------------
+print("\n✓ Comparaison terminée !")
+print("✓ Les résultats ont été sauvegardés dans results/benchmark_results.csv")
+print("\nVous pouvez maintenant :")
+print("  - Ouvrir le CSV avec Excel/LibreOffice pour analyser les résultats")
+print("  - Ajuster les paramètres dans main.py et relancer la comparaison")
+print("  - Visualiser les tours avec visualize.py (à venir)")

@@ -6,11 +6,12 @@ from mpl_toolkits.basemap import Basemap
 
 # =======  Liste de fonctions utilisées dans le main.py =======
 # 
-# haversine().......... calcule la distance entre 2 point géographiques
-# basemap()............ crée une carte de fond
-# cristo_algo()........ implémente les étapes de l'algorithme de Christofides
-# cristo_plot()........ affiche l'algorithme de Christofides sur le fond de carte
-# cristo_step()........ décompose et affiche l'algorithme de Christofides sur le fond de carte
+# haversine()................ calcule la distance entre 2 point géographiques
+# calculate_tour_distance().. calcule la distance totale d'un tour
+# basemap().................. crée une carte de fond
+# cristo_algo().............. implémente les étapes de l'algorithme de Christofides
+# cristo_plot().............. affiche l'algorithme de Christofides sur le fond de carte
+# cristo_steps()............. décompose et affiche l'algorithme de Christofides sur le fond de carte
 #
 # =============================================================
 
@@ -28,7 +29,29 @@ def haversine(lat1, lon1, lat2, lon2):
     
     return R * c  # distance en km
 
+def calculate_tour_distance(tour, data):
+    """
+    Calcule la distance totale d'un tour (chemin hamiltonien ferme).
 
+    Args:
+        tour: Liste des noms de villes dans l'ordre de visite
+        data: DataFrame avec colonnes Ville, Latitude, Longitude
+
+    Returns:
+        Distance totale en km
+    """
+    total_distance = 0
+    for i in range(len(tour)):
+        city1 = tour[i]
+        city2 = tour[(i + 1) % len(tour)]  # retour e la premiere ville
+
+        # Recuperer les coordonnees
+        lat1, lon1 = data.loc[data["Ville"] == city1, ["Latitude", "Longitude"]].values[0]
+        lat2, lon2 = data.loc[data["Ville"] == city2, ["Latitude", "Longitude"]].values[0]
+
+        total_distance += haversine(lat1, lon1, lat2, lon2)
+
+    return total_distance
 
 # --- Création de la carte de fond ---
 def basemap(pos, bg_color='whitesmoke'):
@@ -51,7 +74,7 @@ def basemap(pos, bg_color='whitesmoke'):
 # -------- Algo de Christofides ---------
 
 # Version modulaire cristo algorithme
-def cristo_algo(data):
+def cristo_algo(data, verbose=False):
     # --- Graphe complet pondéré ---
     G = nx.Graph()
     for i, v1 in data.iterrows():
@@ -98,12 +121,31 @@ def cristo_algo(data):
     print("Tournée :", " → ".join(tour))
     print(f"Kilométrage total : {total_distance:.2f} km")
 
-    # --- Print le résultat ---
-    print("Sommets impairs :", odd_nodes)
-    print("\nAppariements du MWPM :")
-    for u, v in matching:
-        print(f"{u} — {v} : {G[u][v]['weight']:.2f} km")
-    
+    # --- Fusion MST + matching ---
+    multigraph = nx.MultiGraph(mst)
+    multigraph.add_edges_from(matching)
+
+    # --- Trouver un cycle eulérien ---
+    eulerian_circuit = list(nx.eulerian_circuit(multigraph))
+
+    # --- Extraire la tournée finale (Hamiltonienne) ---
+    # visited = set()
+    # tour = []
+    # for u, v in eulerian_circuit:
+    #     if u not in visited:
+    #         tour.append(u)
+    #         visited.add(u)
+    # tour.append(tour[0])  # retour au point de départ
+    visited = []
+    for u, v in eulerian_circuit:
+        if u not in visited:
+            visited.append(u)
+    # On ferme le cycle en revenant au point de départ
+    tour = visited + [visited[0]]
+
+
+
+    distance = calculate_tour_distance(tour, data)
             
     # --- Positions des villes ---
     pos = {row["Ville"]: (row["Longitude"], row["Latitude"]) for _, row in data.iterrows()}
@@ -118,7 +160,7 @@ def cristo_algo(data):
         "even_nodes": even_nodes,
         "pos": pos,
         "tour": tour,
-        "total_distance": total_distance
+        "distance": distance
     }
     return g_data
 
@@ -133,7 +175,7 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
     odd_nodes = g_data["odd_nodes"]
     even_nodes = g_data["even_nodes"]
     pos = g_data["pos"]
-    total_distance = g_data["total_distance"]
+    distance = g_data["distance"]
 
     plt.figure(figsize=(12, 10))
 
@@ -181,7 +223,7 @@ def cristo_plot(g_data, show_full=True, show_mst=True, show_matching=True, bg_co
 
 
     plt.legend(loc='upper left', fontsize=9, frameon=True, fancybox=True, shadow=True)
-    plt.title(f"Algorithme de Christofides - {label}\nDistance totale : {total_distance:.2f} km", fontsize=12, fontweight='bold')
+    plt.title(f"Algorithme de Christofides - {label}\nDistance totale : {distance:.2f} km", fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.show()
 
